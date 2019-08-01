@@ -23,21 +23,34 @@ Tasks to be performed are:
 - [ ] 4.0 Basic Proxmox node configuration
 - [ ] 5.0 Create a Proxmox pfSense VM on typhoon-01
 
-## 1.0 Create a Dynamic DNS Service
+## 1.0 Create a Dynamic DNS Service Acccount
+The first task is to setup DDNS account with a service provider. I use Free DNS.
+
+### 1.1 Setup FreeDNS
 Here I recommend using a free Dynamic DNS Service like https://freedns.afraid.org . Setup a free account. Then go to the section `For Members` > `Dynamic DNS` > `Add` and configure the `Add a new subdomain` template as follows:
 
 | Add a new subdomain | Value | Notes
 | :---  | :---: | :---
 | Type | `A` |
-| Subdomain| Enter a subdomain ID of your choosing | *whatever you type here, such as `kingkong` will create a address URL `kingkong.crabdance.com`. Choose something you remember.*
-| Domain | `crabdance.com (public)` | *Select crabdance.com*
+| Subdomain| Enter a subdomain ID of your choosing | *whatever you type here, such as `kingkong`, will create a address URL `kingkong.crabdance.com`. Choose something you remember.*
+| Domain | `crabdance.com (public)` | *Select crabdance.com (you can choose any)*
 | Destination | Leave blank
 | TTL | Leave blank
 | Wildcard | ☐ | *Uncheck*
 
 And complete the verification request and click `Save`.
 
-Next we need to obtain your new DDNS subdomain service provider access token. To get your access token go to the section `For Members` > `Dynamic DNS` and you should see your newly created subdomain. Hover on the hyperlink `Direct URL` and copy the link location/target of `Direct URL`. In the URL you copied the code after `?` is your `Access Token`, http:///freedns.afraid.org/dynamic/update.php?YOUR_UPDATE_TOKEN_IS_HERE. 
+### 1.2 Get your Subdomains Access Token
+Here we need to obtain your new DDNS subdomain service provider access token.
+
+To get your access token go to the section `For Members` > `Dynamic DNS` and you should see your newly created subdomain. Hover on the hyperlink `Direct URL` and copy the link location/target of `Direct URL`.
+
+In the URL you copied the code after `?` is your `Access Token`, http:///freedns.afraid.org/dynamic/update.php?YOUR_UPDATE_TOKEN_IS_HERE. You will need this code later
+
+## 2.0 Manage your Domain Name System (DNS) settings
+My domain management is done by Google Domains only because it was the cheapest service at the time (migrated from GoDaddy). But my DNS name servers are Cloudfare servers. So this tuturial will refer to Cloudfare DNS management. If you too want to use Cloudfare DNS name servers you can create a free account at Cloudfare. There are plenty of tutorials about how to move your DNS services from Google, Godaddy and others to Cloudfare on the internet.
+
+### 2.1 
 
 
 
