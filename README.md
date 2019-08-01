@@ -26,7 +26,7 @@ Tasks to be performed are:
 ## 1.0 Create a Dynamic DNS Service
 Here I recommend using a free Dynamic DNS Service like https://freedns.afraid.org . Setup a free account. Then go to the section `For Members` > `Dynamic DNS` > `Add` and configure the `Add a new subdomain` template as follows:
 
-| Add a new subdomain | Notes
+| Add a new subdomain | Value | Notes
 | :---  | :---: | :---
 | Type | `A` |
 | Subdomain| Enter a subdomain ID of your choosing | *whatever you type here, such as `kingkong` will create a address URL `kingkong.crabdance.com`. Choose something you remember.*
@@ -37,7 +37,7 @@ Here I recommend using a free Dynamic DNS Service like https://freedns.afraid.or
 
 And complete the verification request and click `Save`.
 
-Next we need to obtain your new DDNS subdomain service provider access token. To get your access token go to the section `For Members` > `Dynamic DNS` and you should see your newly created subdomain. Hover on the hyperlink `Direct URL` and copy the link location/target of `Direct URL`. In the URL you copied the code after `?` is your `Access Token`, https://freedns.afraid.org/dynamic/update.php?YOUR_UPDATE_TOKEN_IS_HERE. 
+Next we need to obtain your new DDNS subdomain service provider access token. To get your access token go to the section `For Members` > `Dynamic DNS` and you should see your newly created subdomain. Hover on the hyperlink `Direct URL` and copy the link location/target of `Direct URL`. In the URL you copied the code after `?` is your `Access Token`, freedns.afraid.org/dynamic/update.php?YOUR_UPDATE_TOKEN_IS_HERE. 
 
 
 
