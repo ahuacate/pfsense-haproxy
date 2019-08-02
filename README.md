@@ -124,7 +124,7 @@ Then click `Save`  followed by `Issue/Renew`.
 In the pfSense WebGUI go to `System` > `Certificate Manager` > `CAs`. Click `Add` and fill out the necessary fields as follows:
 
 | Create / Edit CA
-| :--- | :--- | :---
+| :--- | :--- 
 | Descriptive name | `site1.myserver Remote Access`
 | Method | `Create an internal Certificate Authority`
 | **Internal Certificate Authority**
