@@ -140,19 +140,26 @@ In the pfSense WebGUI go to `System` > `Certificate Manager` > `CAs`. Click `Add
 | Email address | Enter your email address
 | Common Name | `site1.myserver.com VPN Remote Access`
 
-SSLH CA
+And click `Save`. Then create another as follows:
 
-    Descriptive name: Hostname SSLH Gateway
-    Method: Create an internal Certificate Authority
-    Key Length: 4096
-    Digest Algorithm: SHA512
-    Lifetime: 3650
-    Country code: US
-    State: OH
-    City: City
-    Organization: Hostname Inc.
-    Email address: security@hostname.com
-    Common Name: Hostname SSLH Gateway
+| Create / Edit CA | Value
+| :--- | :--- 
+| Descriptive name | `site1.myserver SSLH Gateway`
+| Method | `Create an internal Certificate Authority`
+| **Internal Certificate Authority**
+| Key Length (bits) | `4096`
+| Digest Algorithm | `SHA512`
+| Lifetime (days) | `3650`
+| Common Name | internal-ca
+| **The following certificate authority subject components are optional and may be left blank**
+| Country code | Choose your country
+| State | Type your State
+| City | Type your City
+| Organization | Leave Blank
+| Email address | Enter your email address
+| Common Name | `site1.myserver.com SSLH Gateway`
+
+
 
 
 
