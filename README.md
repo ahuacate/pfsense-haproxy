@@ -5,6 +5,8 @@ If you want convenient remote access to your LXC's and/or Apps the easiest way i
 
 pfSense package manager has a ready built distribution of HAProxy.
 
+This guide helped me so much and much of what I have written here was harvested from this [GUIDE](https://www.chucknemeth.com/pfsense-haproxy-port-443/)
+
 Network prerequisites are:
 - [x] Layer 2 Network Switches
 - [x] Network Gateway is `192.168.1.5`
@@ -23,34 +25,15 @@ Tasks to be performed are:
 - [ ] 4.0 Basic Proxmox node configuration
 - [ ] 5.0 Create a Proxmox pfSense VM on typhoon-01
 
-## 1.0 Create a Dynamic DNS Service Acccount
-The first task is to setup DDNS account with a service provider. I use Free DNS.
+## 1.0 Create a Cloudfare Acccount
+My domain management is done by Google Domains only because it was the cheapest provider at the time (migrated from GoDaddy). But I have configured my domains DNS name servers to Cloudfare servers.
 
-### 1.1 Setup FreeDNS
-Here I recommend using a free Dynamic DNS Service like https://freedns.afraid.org . Setup a free account. Then go to the section `For Members` > `Dynamic DNS` > `Add` and configure the `Add a new subdomain` template as follows:
+So this tuturial will refer to Cloudfare DNS management.
 
-| Add a new subdomain | Value | Notes
-| :---  | :---: | :---
-| Type | `A` |
-| Subdomain| Enter a subdomain ID of your choosing | *whatever you type here, such as `kingkong`, will create a address URL `kingkong.crabdance.com`. Choose something you remember.*
-| Domain | `crabdance.com (public)` | *Select crabdance.com (you can choose any)*
-| Destination | Leave blank
-| TTL | Leave blank
-| Wildcard | ☐ | *Uncheck*
+I recommend you too setup and migrate your domain DNS management to Cloudfare. Not only are there servers fast, they also have a API to configure your DNS records and a free Dynamic DNS service accessed by a API key. If you too want to use Cloudfare DNS name servers you can create a free account at Cloudfare. There are plenty of tutorials about how to move your DNS services from Google, Godaddy and others to Cloudfare on the internet.
 
-And complete the verification request and click `Save`.
-
-### 1.2 Get your Subdomains Access Token
-Here we need to obtain your new DDNS subdomain service provider access token.
-
-To get your access token go to the section `For Members` > `Dynamic DNS` and you should see your newly created subdomain. Hover on the hyperlink `Direct URL` and copy the link location/target of `Direct URL`.
-
-In the URL you copied the code after `?` is your `Access Token`, http:///freedns.afraid.org/dynamic/update.php?YOUR_UPDATE_TOKEN_IS_HERE. You will need this code later
-
-## 2.0 Manage your Domain Name System (DNS) settings
-My domain management is done by Google Domains only because it was the cheapest service at the time (migrated from GoDaddy). But my DNS name servers are Cloudfare servers. So this tuturial will refer to Cloudfare DNS management. If you too want to use Cloudfare DNS name servers you can create a free account at Cloudfare. There are plenty of tutorials about how to move your DNS services from Google, Godaddy and others to Cloudfare on the internet.
-
-### 2.1 
+### 1.1 Creating an Cloudfare DNS A record for your home server(s)
+First you must decide on your subdomain names. It’s part of the address used to direct traffic to a particular service running on your servers. For example, **jellyfin.`bahamas`.myserver.com** or **jellyfin.`zurich`.myserver.com** where **`bahamas`** and **`zurich`** are two different locations in the world. 
 
 
 
