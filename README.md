@@ -40,7 +40,7 @@ First login to your Cloudfare Dashboard Home, choose your domain and go to `DNS 
 
 | Type | Name | IPv4 address | Automatic TTL | Orange Cloud | Notes
 | :---: | :---: | :---: | :---: | :---: | :---
-| `A` | `jellyfin.location1` | 0.0.0.0 | `Automatic TTL` | `OFF` | *Note, Uncheck the cloudfare orange cloud.*
+| `A` | `jellyfin.site1` | 0.0.0.0 | `Automatic TTL` | `OFF` | *Note, Uncheck the cloudfare orange cloud.*
 
 ### 2.2 Disable Cloudfare Crypto
 Using your Cloudfare Dashboard Home, choose your domain and go to `Crypto TAB`. Under the section `SSL - Encrypt communication to and from your website using SSL` disable the service by setting it to the `Off` state.
@@ -60,7 +60,7 @@ We need to configure pfSense to send the DynamicDNS infornmation to Cloudflare. 
 | Disable | `☐` Disable this client |*Uncheck*
 | Service Type | `Cloudfare`
 | Interface to monitor | `WAN`
-| Hostname | `jellyfin.location1`
+| Hostname | `jellyfin.site1`
 | Domain | `myserver.com` | *Replace with your domain name.*
 | MX | Leave Blank
 | Wildcards | `☑` Enable Wildcard
@@ -68,7 +68,92 @@ We need to configure pfSense to send the DynamicDNS infornmation to Cloudflare. 
 | Verbose logging | `☑` Enable verbose logging
 | Username | Enter your Cloudfare Accounts reg'd Email Address
 | Password | Enter your Global API Key | *See section 3.0*
-| Description | `jellyfin.location1.myserver.com`
+| Description | `jellyfin.site1.myserver.com`
+
+
+## 4.0 Install ACME on pfSense
+We need to install the ACME package on your pfSense. ACME is Automated Certificate Management Environment, for automated use of LetsEncrypt certificates.
+
+In the pfSense WebGUI go to `System` > `Package Manager` > `Available Packages Tab` and search for `ACME`. Install the `ACME` package.
+
+## 5.0 Generate Certificates
+We will need to generate certificates from a trusted provider such as Let’s Encrypt and a few from within pfSense itself.
+
+We need 2x wildcard certificates from Let’s Encrypt. Creating wildcard certificates will allow us to create subdomains without having to generate a new certificate for each one.
+
+We can use the ACME Package provided in pfSense.
+
+### 5.1 Create ACME Account Keys
+In the pfSense WebGUI go to `Services` > `Acme Certificates` > `Account Keys`. Click `Add` and fill out the necessary fields as follows:
+
+| Edit Certificate options | Value | Notes
+| :--- | :---
+| Name | `hostname` | *For example, `myserver`*
+Description | `hostname key` | * For example, `myserver key`*
+Acme Server | `Let’s Encrypt Production ACME v2 (Applies rate limits to certificate requests)`
+E-Mail Address | Enter your email address
+Account key | `Create new account key` | *Click `Create new account key`*
+Acme account registration | `Register acme account key` | *Click `Register acme account key`*
+
+And click `Save`.
+
+### 5.2 Create ACME Certificates
+In the pfSense WebGUI go to `Services` > `Acme Certificates` > `Certificates`. Click `Add` and fill out the necessary fields as follows:
+
+| Edit Certificate options | Value
+| :--- | :---
+| Name | `wildcard.site1.myserver.com`
+| Description | `Wildcard for site1.myserver.com`
+| Status | `active`
+| Acme Account | `hostname`
+| Private Key | `256bit ECDSA`
+| OCSP Must Staple | `☐ Add the OCSP Must Staple extension to the certificate`
+| **Domain SAN list**
+| Mode |`Enabled`
+| Domainname `*.site1.myserver.com`
+| Method | `DNS-Cloudflare`
+| Mode | `Enabled`
+| Key | Fill in the Cloudfare Global API Key
+| Email | Enter your email addresss
+| Enable DNS alias mode | Leave Blank
+| Enable DNS domain alias mode | `☐ (Optional) Uses the challenge domain alias value as --domain-alias instead in the acme.sh call`
+
+Then click `Save`  followed by `Issue/Renew`.
+
+## Create Certificate Authorities
+In the pfSense WebGUI go to `System` > `Certificate Manager` > `CAs`. Click `Add` and fill out the necessary fields as follows:
+
+| Create / Edit CA
+| :--- | :--- | :---
+| Descriptive name | `site1.myserver Remote Access`
+| Method | `Create an internal Certificate Authority`
+| **Internal Certificate Authority**
+| Key Length (bits) | `4096`
+| Digest Algorithm | `SHA512`
+| Lifetime (days) | `3650`
+| Common Name | internal-ca
+| **The following certificate authority subject components are optional and may be left blank**
+| Country code | Choose your country
+| State | Type your State
+| City | Type your City
+| Organization | Leave Blank
+| Email address | Enter your email address
+| Common Name | `site1.myserver.com VPN Remote Access`
+
+SSLH CA
+
+    Descriptive name: Hostname SSLH Gateway
+    Method: Create an internal Certificate Authority
+    Key Length: 4096
+    Digest Algorithm: SHA512
+    Lifetime: 3650
+    Country code: US
+    State: OH
+    City: City
+    Organization: Hostname Inc.
+    Email address: security@hostname.com
+    Common Name: Hostname SSLH Gateway
+
 
 
 
