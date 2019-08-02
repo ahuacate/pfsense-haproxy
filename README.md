@@ -26,14 +26,21 @@ Tasks to be performed are:
 - [ ] 5.0 Create a Proxmox pfSense VM on typhoon-01
 
 ## 1.0 Create a Cloudfare Acccount
-My domain management is done by Google Domains only because it was the cheapest provider at the time (migrated from GoDaddy). But I have configured my domains DNS name servers to Cloudfare servers.
+My domain management is done by Google Domains. But I have redirected my domains DNS Name Server with another provider called Cloudfare.
 
-So this tuturial will refer to Cloudfare DNS management.
+I recommend you too redirect your domain DNS Names Servers to Cloudfare. Not only are there servers fast, they also have an API Key to configure your DNS records automatically and provide a free Dynamic DNS service. If you too want to use Cloudfare DNS name servers you can create a free account at Cloudfare. There are plenty of tutorials about how to move your DNS services from Google, Godaddy and other providers to Cloudfare on the internet.
 
-I recommend you too setup and migrate your domain DNS management to Cloudfare. Not only are there servers fast, they also have a API to configure your DNS records and a free Dynamic DNS service accessed by a API key. If you too want to use Cloudfare DNS name servers you can create a free account at Cloudfare. There are plenty of tutorials about how to move your DNS services from Google, Godaddy and others to Cloudfare on the internet.
+So this tuturial will refer to Cloudfare DNS management from now on.
 
 ### 1.1 Creating an Cloudfare DNS A record for your home server(s)
-First you must decide on your subdomain names. It’s part of the address used to direct traffic to a particular service running on your servers. For example, **jellyfin.`bahamas`.myserver.com** or **jellyfin.`zurich`.myserver.com** where **`bahamas`** and **`zurich`** are two different locations in the world. 
+First you must decide on your subdomain names. It’s part of the address used to direct traffic to a particular service running on your servers. For example, **jellyfin.`site1`.myserver.com** or **jellyfin.`site2`.myserver.com** where **`site1`** and **`site2`** are two different locations (i.e cities) in the world.
+
+First login to your Cloudfare Dashboard Home, choose your domain and go to `DNS TAB`. You will be provided with a page to `Manage your Domain NAme System (DNS) settings`. Using the Cloudfare web interface create the following form entries by clicking `Add Record` after completing each each entry:
+
+| Type | Name | IPv4 address | Automatic TTL | Orange Cloud | Notes
+| :---: | :---: | :---: | :---: | :---: | :---
+| `A` | `jellyfin.location1` | 0.0.0.0 | `OFF` | 
+
 
 
 
