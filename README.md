@@ -32,14 +32,43 @@ I recommend you too redirect your domain DNS Names Servers to Cloudfare. Not onl
 
 So this tuturial will refer to Cloudfare DNS management from now on.
 
-### 1.1 Creating an Cloudfare DNS A record for your home server(s)
+## 2.0 Configure your domains at Cloudfare
 First you must decide on your subdomain names. It’s part of the address used to direct traffic to a particular service running on your servers. For example, **jellyfin.`site1`.myserver.com** or **jellyfin.`site2`.myserver.com** where **`site1`** and **`site2`** are two different locations (i.e cities) in the world.
 
+### 2.1 Create DNS A records for your servers
 First login to your Cloudfare Dashboard Home, choose your domain and go to `DNS TAB`. You will be provided with a page to `Manage your Domain NAme System (DNS) settings`. Using the Cloudfare web interface create the following form entries by clicking `Add Record` after completing each each entry:
 
 | Type | Name | IPv4 address | Automatic TTL | Orange Cloud | Notes
 | :---: | :---: | :---: | :---: | :---: | :---
-| `A` | `jellyfin.location1` | 0.0.0.0 | `OFF` | 
+| `A` | `jellyfin.location1` | 0.0.0.0 | `Automatic TTL` | `OFF` | *Note, Uncheck the cloudfare orange cloud.*
+
+### 2.2 Disable Cloudfare Crypto
+Using your Cloudfare Dashboard Home, choose your domain and go to `Crypto TAB`. Under the section `SSL - Encrypt communication to and from your website using SSL` disable the service by setting it to the `Off` state.
+
+## 3.0 pfSense Dynamic DNS
+Cloudfare provides you with a API key (called the Global API Key)which gives pfSense the rights to update your domains DNS information. So have your Cloudfare Global API key ready by:
+*  Log in to Cloudflare Account and go to your Profile;
+*  Scroll down and View your **Global API Key**;
+*  Complete the password challenge and note your key.
+
+### 3.1 Create pfSense Dynamic DNS entries
+We need to configure pfSense to send the DynamicDNS infornmation to Cloudflare. In the pfSense WebGUI go to `Services` > `Dynamic DNS` > `Dynamic DNS Clients`. Click `Add` and fill out the necessary fields as follows:
+
+| Dynamic DNS Client | Value | Notes
+| :--- | :---: | :---
+| **jellyfin.location1.myserver.com**
+| Disable | `☐` Disable this client |*Uncheck*
+| Service Type | `Cloudfare`
+| Interface to monitor | `WAN`
+| Hostname | `jellyfin.location1`
+| Domain | `myserver.com` | *Note: Replace with your domain name.*
+| MX | Leave Blank
+| Wildcards | `☑` Enable Wildcard
+| Cloudflare Proxy | Enable Proxy
+| Verbose logging | `☑` Enable verbose logging
+| Username | Enter your Cloudfare Accounts reg'd Email Address
+| Password | Enter your Global API Key | *Note: See section 3.0*
+| Description | `jellyfin.location1.myserver.com`
 
 
 
