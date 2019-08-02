@@ -55,19 +55,19 @@ Cloudfare provides you with a API key (called the Global API Key)which gives pfS
 We need to configure pfSense to send the DynamicDNS infornmation to Cloudflare. In the pfSense WebGUI go to `Services` > `Dynamic DNS` > `Dynamic DNS Clients`. Click `Add` and fill out the necessary fields as follows:
 
 | Dynamic DNS Client | Value | Notes
-| :--- | :---: | :---
+| :--- | :--- | :---
 | **jellyfin.location1.myserver.com**
 | Disable | `☐` Disable this client |*Uncheck*
 | Service Type | `Cloudfare`
 | Interface to monitor | `WAN`
 | Hostname | `jellyfin.location1`
-| Domain | `myserver.com` | *Note: Replace with your domain name.*
+| Domain | `myserver.com` | *Replace with your domain name.*
 | MX | Leave Blank
 | Wildcards | `☑` Enable Wildcard
 | Cloudflare Proxy | Enable Proxy
 | Verbose logging | `☑` Enable verbose logging
 | Username | Enter your Cloudfare Accounts reg'd Email Address
-| Password | Enter your Global API Key | *Note: See section 3.0*
+| Password | Enter your Global API Key | *See section 3.0*
 | Description | `jellyfin.location1.myserver.com`
 
 
