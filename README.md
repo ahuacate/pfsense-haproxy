@@ -159,7 +159,7 @@ Then click `Save`  followed by `Issue/Renew`. A review of the output will appear
 ```
 wildcard.site1.foo.bar
 Renewing certificate
-account: foo.espeo-test
+account: foo-test
 server: letsencrypt-staging-2
 
 
@@ -169,15 +169,24 @@ Array
 (
 [path] => /etc:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin/
 [PATH] => /etc:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin/
-[CF_Key] => XXXXXXXXXXXXXXXXXXXXXXXXXXX
-[CF_Email] => XXXX@example.com
+[CF_Key] => 8XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+[CF_Email] => yourname@example.com
 )
-[Sat Aug 3 11:18:25 +07 2019] Registering account
-[Sat Aug 3 11:18:29 +07 2019] Already registered
-....... continue
+[Sat Aug 3 14:34:55 +07 2019] Registering account
+[Sat Aug 3 14:34:58 +07 2019] Already registered
+[Sat Aug 3 14:34:58 +07 2019] ACCOUNT_THUMBPRINT='XXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+[Sat Aug 3 14:34:58 +07 2019] Multi domain='DNS:site1.foo.bar,DNS:*.site1.foo.bar'
+[Sat Aug 3 14:34:58 +07 2019] Getting domain auth token for each domain
+[Sat Aug 3 14:35:12 +07 2019] Getting webroot for domain='site1.foo.bar'
+[Sat Aug 3 14:35:12 +07 2019] Getting webroot for domain='*.site1.foo.bar'
+[Sat Aug 3 14:35:12 +07 2019] site1.foo.bar is already verified, skip dns-01.
+[Sat Aug 3 14:35:12 +07 2019] *.site1.foo.bar is already verified, skip dns-01.
+[Sat Aug 3 14:35:12 +07 2019] Verify finished, start to sign.
+[Sat Aug 3 14:35:12 +07 2019] Lets finalize the order, Le_OrderFinalize: https://acme-v02.api.letsencrypt.org/acme/finalize/XXXXXXXXXXXXXXXXXXXXX
+[Sat Aug 3 14:35:15 +07 2019] Download cert, Le_LinkCert: https://acme-v02.api.letsencrypt.org/acme/cert/XXXXXXXXXXXXXXXX
+[Sat Aug 3 14:35:18 +07 2019] Cert success
 -----BEGIN CERTIFICATE-----
-MIIEmjCCA4KgAwIBAgISBK3FtmuOzJ/2l7uTtc/KYCgWMA0GCSqGSIb3DQEBCwUA
-...... etc, continue
+your key is here
 -----END CERTIFICATE-----
 ```
 
