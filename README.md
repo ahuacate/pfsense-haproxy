@@ -26,26 +26,28 @@ Tasks to be performed are:
 - [ ] 5.0 Create a Proxmox pfSense VM on typhoon-01
 
 ## 1.0 Create a Cloudfare Acccount
-My domain management is done by Google Domains. But I have redirected my domains DNS Name Server with another provider called Cloudfare.
+I recommend you redirect your domain DNS Names Servers to Cloudfare. Not only are Cloudfare DNS servers fast, they also have an API Key for configuring your DNS records automatically and provide a **free Dynamic DNS service**. If you want to use Cloudfare DNS name servers you can create a free account at Cloudfare.
 
-I recommend you too redirect your domain DNS Names Servers to Cloudfare. Not only are there servers fast, they also have an API Key to configure your DNS records automatically and provide a free Dynamic DNS service. If you too want to use Cloudfare DNS name servers you can create a free account at Cloudfare. There are plenty of tutorials about how to move your DNS services from Google, Godaddy and other providers to Cloudfare on the internet.
+There are plenty of tutorials about how to move your DNS services from Google, Godaddy and other providers to Cloudfare on the internet.
 
-So this tuturial will refer to Cloudfare DNS management from now on.
+This tutorial will refer to Cloudfare DNS management from now on.
 
 ## 2.0 Configure your domains at Cloudfare
-First you must decide on your subdomain names. It’s part of the address used to direct traffic to a particular service running on your servers. For example, **jellyfin.`site1`.foo.bar** or **jellyfin.`site2`.foo.bar** where **`site1`** and **`site2`** are two different locations (i.e cities) in the world.
+First you must decide on your subdomain names. It’s part of the address used to direct traffic to a particular service running on your sites servers. 
+
+For example, **jellyfin-`site1`.foo.bar** or **jellyfin-`site2`.foo.bar** where **`site1`** and **`site2`** are two different locations (i.e cities) in the world.
 
 ### 2.1 Create DNS A records for your servers
 First login to your Cloudfare Dashboard Home, choose your domain and go to `DNS TAB`. You will be provided with a page to `Manage your Domain NAme System (DNS) settings`. Using the Cloudfare web interface create the following form entries by clicking `Add Record` after completing each each entry:
 
 | Type | Name | IPv4 address | Automatic TTL | Orange Cloud | Notes
 | :---: | :---: | :---: | :---: | :---: | :---
-| `A` | `jellyfin.site1` | 0.0.0.0 | `Automatic TTL` | `OFF` | *Note, Uncheck the cloudfare orange cloud. Also the IP address 0.0.0.0 will be updated by your pfSense DDNS service.*
-| `A` | `radarr.site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
-| `A` | `sonarr.site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
-| `A` | `sabnzbd.site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
-| `A` | `deluge.site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
-| `A` | `vpn.site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
+| `A` | `jellyfin-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` | *Note, Uncheck the cloudfare orange cloud. Also the IP address 0.0.0.0 will be updated by your pfSense DDNS service.*
+| `A` | `radarr-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
+| `A` | `sonarr-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
+| `A` | `sabnzbd-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
+| `A` | `deluge-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
+| `A` | `vpn-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
 
 ### 2.2 Disable Cloudfare Crypto
 Using your Cloudfare Dashboard Home, choose your domain and go to `Crypto TAB`. Under the section `SSL - Encrypt communication to and from your website using SSL` disable the service by setting it to the `Off` state.
@@ -73,7 +75,7 @@ We need to configure pfSense to send the DynamicDNS infornmation to Cloudflare. 
 | Verbose logging | `☑` Enable verbose logging
 | Username | Enter your Cloudfare Accounts reg'd Email Address
 | Password | Enter your Global API Key | *See section 3.0*
-| Description | `jellyfin.site1.foo.bar`
+| Description | `jellyfin-site1.foo.bar`
 
 
 ## 4.0 Install ACME on pfSense
@@ -81,7 +83,7 @@ We need to install the ACME package on your pfSense. ACME is Automated Certifica
 
 In the pfSense WebGUI go to `System` > `Package Manager` > `Available Packages Tab` and search for `ACME`. Install the `ACME` package.
 
-## 5.0 Generate Certificates
+## 5.0 Generate ACME Certificates
 We will need to generate certificates from a trusted provider such as Let’s Encrypt and a few from within pfSense itself.
 
 We need 2x wildcard certificates from Let’s Encrypt. Creating wildcard certificates will allow us to create subdomains without having to generate a new certificate for each one.
@@ -107,7 +109,7 @@ In the pfSense WebGUI go to `Services` > `Acme Certificates` > `Account Keys`. C
 | **Test Key**
 | Name | `site1.foo-test` | *For example, `site1.foo-test`*
 | Description | `site1.foo-test key` | * For example, `site1.foo-test key`*
-| Acme Server | `Let’s Encrypt Production ACME v2 (Applies rate limits to certificate requests)`
+| Acme Server | `Let’s Encrypt Staging ACME v2 (for TESTING purposes)`
 | E-Mail Address | Enter your email address
 | Account key | `Create new account key` | *Click `Create new account key`*
 | Acme account registration | `Register acme account key` | *Click `Register acme account key`*
