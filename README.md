@@ -330,7 +330,6 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 | Port `443`
 | SSL offloading | `☑` 
 | Advanced | Leave blank
-|
 | Max Connections | `500`
 | Type | `http / https(offloading)`
 | **Default backend, access control lists and actions**
@@ -353,7 +352,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 | Bind pass thru | Leave blank
 | Advanced pass thru | Leave blank
 | ** SSL Offloading**
-|SNI filter | Leave blank
+| SNI filter | Leave blank
 | Certificate | `site1.foo.bar (CA: Acmecert: 0=Let’s Encrypt,CN=Let’s Encrypt Authority X3,C=US)[Server cert]`
 | Add ACL for certificate CommonName | `☑`
 | Add ACL for certificate Subject Alternative Names | `☑`
@@ -371,7 +370,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 8.2 Jellyfin authentication frontend
+### 8.2 Jellyfin authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value | Notes
@@ -400,7 +399,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 8.3 Sonarr authentication frontend
+### 8.3 Sonarr authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value | Notes
@@ -429,7 +428,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 8.4 Radarr authentication frontend
+### 8.4 Radarr authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value | Notes
@@ -458,7 +457,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 8.5 Sabnzbd authentication frontend
+### 8.5 Sabnzbd authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value | Notes
@@ -487,7 +486,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 8.6 Deluge authentication frontend
+### 8.6 Deluge authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value | Notes
@@ -515,3 +514,58 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 | Use offloading | `☐ Specify additional certificates for this shared-frontend`
 
 And click `Save`.
+
+## 9.0 Backend Settings
+Backends are your server nodes.
+### 9.1 Jellyfin Backend
+
+| Edit HAProxy Backend server pool | Value | Notes
+| :--- | :--- | :---
+| Name | `jellyfin-site1.foo.bar`
+| Server list
+| Table-Mode | `active`
+| Table-Name | `jellyfin`
+| Table-Forwardto | `Address+Port`
+| Table-Address | `192.168.50.111`
+| Table-Port | `8096`
+| Table-Encrypt(SSL) | `☐`
+| Table-SSL checks | `☐`
+| Table-Weight | Leave blank
+| **Loadbalancing options (when multiple servers are defined)**
+| Balance | `☑ None`
+| **Access control lists and actions**
+| Access Control lists | Leave blank
+| Actions | Leave blank
+| **Timeout / retry settings**
+| Connection timeout | Leave blank
+| Server timeout | Leave blank
+| Retries | Leave blank
+| **Health checking**
+| Health check method | `Basic`
+| Check frequency | Leave blank
+| Log checks | `☑ When this option is enabled, any change of the health check status or to the server's health will be logged.`
+| **Agent checks**
+| Agent checks | `☐ Use agent checks`
+| **Cookie persistence**
+| Cookie Enabled | `☐ Enables cookie based persistence. (only used on "http" frontends)`
+| **Stick-table persistence**
+| Stick tables | `none`
+| **Email notifications**
+| Mail level | `Default level from global`
+| Mail to | Leave blank
+| **Statistics**
+| Stats Enabled | `☐ Enables the haproxy statistics page (only used on "http" frontends)`
+| **Error files**
+| Error files | Leave blank
+| **HSTS / Cookie protection**
+| HSTS Strict-Transport-Security | Leave blank
+| Cookie protection | `☐ Set "secure" attribure on cookies (only used on "http" frontends)`
+| **Advanced settings**
+| Per server pass thru | Leave blank
+| Backend pass thru | Leave blank
+| Transparent ClientIP | `☐  Use Client-IP to connect to backend servers`
+
+And click `Save`
+
+| Shared Frontend | `☑`
+| Primary frontend | `shar
