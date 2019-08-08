@@ -273,8 +273,8 @@ In the pfSense WebGUI go to `System` > `Package Manager` > `Available Packages T
 ## 7.0 Proxy Settings
 In the pfSense WebGUI go to `Service` > `ACME` > `Settings` and fill out the necessary fields as follows:
 
-| Settings Tab | Value | Notes
-| :--- | :--- | :---
+| Settings Tab | Value 
+| :--- | :--- 
 | Enable HAProxy | `☑` 
 | Maximum connections | `256`
 | Number of processes to start | `1`
@@ -319,8 +319,8 @@ So we will create a shared front end and then sub front ends for each subdomain.
 ### 8.1 Shared Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
-| Edit HAProxy Frontend | Value | Notes
-| :--- | :--- | :---
+| Edit HAProxy Frontend | Value 
+| :--- | :--- 
 | Name | `shared-frontend`
 | Description | `Shared Frontend`
 | Status `Active`
@@ -373,8 +373,8 @@ And click `Save`.
 ### 8.2 Jellyfin authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
-| Edit HAProxy Frontend | Value | Notes
-| :--- | :--- | :---
+| Edit HAProxy Frontend | Value
+| :--- | :--- 
 | Name | `jellyfin-site1.foo.bar`
 | Description | `Jellyfin authenticated frontend`
 | Status `Active`
@@ -402,8 +402,8 @@ And click `Save`.
 ### 8.3 Sonarr authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
-| Edit HAProxy Frontend | Value | Notes
-| :--- | :--- | :---
+| Edit HAProxy Frontend | Value
+| :--- | :---
 | Name | `sonarr-site1.foo.bar`
 | Description | `Sonarr authenticated frontend`
 | Status `Active`
@@ -431,8 +431,8 @@ And click `Save`.
 ### 8.4 Radarr authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
-| Edit HAProxy Frontend | Value | Notes
-| :--- | :--- | :---
+| Edit HAProxy Frontend | Value
+| :--- | :---
 | Name | `radarr-site1.foo.bar`
 | Description | `Radarr authenticated frontend`
 | Status `Active`
@@ -460,8 +460,8 @@ And click `Save`.
 ### 8.5 Sabnzbd authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
-| Edit HAProxy Frontend | Value | Notes
-| :--- | :--- | :---
+| Edit HAProxy Frontend | Value
+| :--- | :---
 | Name | `sabnzbd-site1.foo.bar`
 | Description | `Sabnzbd authenticated frontend`
 | Status `Active`
@@ -489,8 +489,8 @@ And click `Save`.
 ### 8.6 Deluge authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
-| Edit HAProxy Frontend | Value | Notes
-| :--- | :--- | :---
+| Edit HAProxy Frontend | Value
+| :--- | :---
 | Name | `deluge-site1.foo.bar`
 | Description | `Deluge authenticated frontend`
 | Status `Active`
@@ -519,8 +519,8 @@ And click `Save`.
 Backends are your server nodes.
 ### 9.1 Jellyfin Backend
 
-| Edit HAProxy Backend server pool | Value | Notes
-| :--- | :--- | :---
+| Edit HAProxy Backend server pool | Value
+| :--- | :---
 | Name | `jellyfin-site1.foo.bar`
 | Server list
 | Table-Mode | `active`
@@ -566,6 +566,3 @@ Backends are your server nodes.
 | Transparent ClientIP | `☐  Use Client-IP to connect to backend servers`
 
 And click `Save`
-
-| Shared Frontend | `☑`
-| Primary frontend | `shar
