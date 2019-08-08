@@ -22,9 +22,13 @@ Other Prerequisites are:
 Tasks to be performed are:
 - [ ] 1.0 Create a Cloudfare Acccount
 - [ ] 2.0 Configure your domains at Cloudfare
-- [ ] 3.0 Easy Installation Option
-- [ ] 4.0 Basic Proxmox node configuration
-- [ ] 5.0 Create a Proxmox pfSense VM on typhoon-01
+- [ ] 3.0 pfSense Dynamic DNS
+- [ ] 4.0 Install ACME on pfSense
+- [ ] 5.0 Generate ACME Certificates
+- [ ] 6.0 Install HAProxy
+- [ ] 7.0 Proxy Settings
+- [ ] 8.0 Frontend Settings
+- [ ] 9.0 Backend Settings
 
 ## 1.0 Create a Cloudfare Acccount
 I recommend you redirect your domain DNS Names Servers to Cloudfare. Not only are Cloudfare DNS servers fast, they also have an API Key for configuring your DNS records automatically and provide a **free Dynamic DNS service**. If you want to use Cloudfare DNS name servers you can create a free account at Cloudfare.
@@ -517,6 +521,7 @@ And click `Save`.
 
 ## 9.0 Backend Settings
 Backends are your server nodes.
+
 ### 9.1 Jellyfin Backend
 
 | Edit HAProxy Backend server pool | Value
