@@ -124,7 +124,7 @@ So we will create two Account Keys.
 In the pfSense WebGUI go to `Services` > `Acme Certificates` > `Account Keys`. Click `Add` and fill out the necessary fields as follows:
 
 | Edit Certificate options | Value | Notes
-| :--- | :---
+| :--- | :--- | :---
 | **Production Key**
 | Name | `site1.foo-production` | *For example, `site1.foo-production`*
 | Description | `site1.foo-production key` | *For example, `site1.foo-production key`*
