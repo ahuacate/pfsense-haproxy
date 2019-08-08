@@ -151,8 +151,8 @@ Finally click `Save`.
 ### 5.2 Create ACME Certificates
 In the pfSense WebGUI go to `Services` > `Acme Certificates` > `Certificates`. Click `Add` and fill out the necessary fields as follows. Notice I have multiple entries in the Domain SAN List. This means the same certificate will be used for each server connection. In this example we will get a certificate that covers `jellyfin-site1`, `radarr-site1`, `sonarr-site1`, `sabnzbd-site1` and `deluge-site1` - basically all your media server connections.
 
-| Edit Certificate options | Value | Notes
-| :--- | :--- |:---
+| Edit Certificate options | Value
+| :--- | :---
 | Name | `media-site1.foo.bar`
 | Description | `site1.foo.bar media SSL Certificate`
 | Status | `active`
