@@ -95,18 +95,25 @@ We need to configure pfSense to send the DynamicDNS infornmation to Cloudflare. 
 | Password | Enter your Global API Key | *See section 3.0*
 | Description | `jellyfin-site1.foo.bar`
 
-And click `Save & Force Update`. Now check your Cloudfare DNS A-records your created [HERE]( and all the IP values should change from 0.0.0.0 to your WAN IP address.
+And click `Save & Force Update`. Now repeat the above steps for all your Cloudfare DNS A-record entries and servers (i.e `radarr-site1`, `sonarr-site1`, `sabnzbd-site1`, `deluge-site1`, `vpn-site1` etc)
 
+Then check your Cloudfare DNS A-records your created [HERE](https://github.com/ahuacate/proxmox-reverseproxy/blob/master/README.md#21-create-dns-a-records-for-your-servers) and all your servers IP values should change from 0.0.0.0 to your WAN IP address.
 
 ## 4.0 Install ACME on pfSense
 We need to install the ACME package on your pfSense. ACME is Automated Certificate Management Environment, for automated use of LetsEncrypt certificates.
 
 In the pfSense WebGUI go to `System` > `Package Manager` > `Available Packages Tab` and search for `ACME`. Install the `ACME` package.
 
-## 5.0 Generate ACME Certificates
-We will need to generate certificates from a trusted provider such as Let’s Encrypt and a few from within pfSense itself.
+### 4.1 ACME General Settings
+In the pfSense WebGUI go to `Service` > `ACME` > `Settings` and fill out the necessary fields as follows:
 
-We need 2x wildcard certificates from Let’s Encrypt. Creating wildcard certificates will allow us to create subdomains without having to generate a new certificate for each one.
+| General Settings Tab | Value | Notes
+| :--- | :---
+| Cron Entry | `☑ Enable Acme client renewal job` 
+| Write Certificates | Leave Blank
+
+## 5.0 Generate ACME Certificates
+We will need to generate certificates from a trusted provider such as Let’s Encrypt.
 
 We can use the ACME Package provided in pfSense.
 
@@ -121,14 +128,14 @@ In the pfSense WebGUI go to `Services` > `Acme Certificates` > `Account Keys`. C
 | :--- | :---
 | **Production Key**
 | Name | `site1.foo-production` | *For example, `site1.foo-production`*
-| Description | `site1.foo-production key` | * For example, `site1.foo-production key`*
+| Description | `site1.foo-production key` | *For example, `site1.foo-production key`*
 | Acme Server | `Let’s Encrypt Production ACME v2 (Applies rate limits to certificate requests)`
 | E-Mail Address | Enter your email address
 | Account key | `Create new account key` | *Click `Create new account key`*
 | Acme account registration | `Register acme account key` | *Click `Register acme account key`*
 | **Test Key**
 | Name | `site1.foo-test` | *For example, `site1.foo-test`*
-| Description | `site1.foo-test key` | * For example, `site1.foo-test key`*
+| Description | `site1.foo-test key` | *For example, `site1.foo-test key`*
 | Acme Server | `Let’s Encrypt Staging ACME v2 (for TESTING purposes)`
 | E-Mail Address | Enter your email address
 | Account key | `Create new account key` | *Click `Create new account key`*
@@ -143,49 +150,85 @@ Then click the `Register ACME Account key`. The little cog will spin and if it w
 Finally click `Save`.
 
 ### 5.2 Create ACME Certificates
-In the pfSense WebGUI go to `Services` > `Acme Certificates` > `Certificates`. Click `Add` and fill out the necessary fields as follows. Notice have two entries in the Domain SAN List. Every level of the domain needs to have it’s own certificate. So we will get a certificate that covers both foo.bar and *.foo.bar.
+In the pfSense WebGUI go to `Services` > `Acme Certificates` > `Certificates`. Click `Add` and fill out the necessary fields as follows. Notice I have multiple entries in the Domain SAN List. This means the same certificate will be used for each server connection. In this example we will get a certificate that covers `jellyfin-site1`, `radarr-site1`, `sonarr-site1`, `sabnzbd-site1` and `deluge-site1` - basically all your media server connections.
 
 | Edit Certificate options | Value | Notes
 | :--- | :--- |:---
-| Name | `wildcard.site1.foo.bar`
-| Description | `Wildcard for site1.foo.bar`
+| Name | `media-site1.foo.bar`
+| Description | `site1.foo.bar media SSL Certificate`
 | Status | `active`
 | Acme Account | `site1.foo-test`
-| Private Key | `2048-bit RSA`
+| Private Key | `384-bit ECDSA`
 | OCSP Must Staple | `☐ Add the OCSP Must Staple extension to the certificate`
 | **Entry 1 - Domain SAN list**
 | Mode |`Enabled`
-| Domainname `site1.foo.bar` | *No wildcard for this entry*
+| Domainname `jellyfin-site1.foo.bar` | *One entry per Cloudfare DNS A-record*
 | Method | `DNS-Cloudflare`
 | Mode | `Enabled`
 | Key | Fill in the Cloudfare Global API Key
-| Email | Enter your email addresss
+| Email | Enter your email address
 | Enable DNS alias mode | Leave Blank
 | Enable DNS domain alias mode | `☐ (Optional) Uses the challenge domain alias value as --domain-alias instead in the acme.sh call`
 | **Entry 2 - Domain SAN list**
 | Mode |`Enabled`
-| Domainname `*.site1.foo.bar` | *This entry is the wildcard of site1.foo.bar*
+| Domainname `radarr-site1.foo.bar` | *One entry per Cloudfare DNS A-record*
 | Method | `DNS-Cloudflare`
 | Mode | `Enabled`
 | Key | Fill in the Cloudfare Global API Key
-| Email | Enter your email addresss
+| Email | Enter your email address
+| Enable DNS alias mode | Leave Blank
+| Enable DNS domain alias mode | `☐ (Optional) Uses the challenge domain alias value as --domain-alias instead in the acme.sh call`
+| **Entry 3 - Domain SAN list**
+| Mode |`Enabled`
+| Domainname `sonarr-site1.foo.bar` | *One entry per Cloudfare DNS A-record*
+| Method | `DNS-Cloudflare`
+| Mode | `Enabled`
+| Key | Fill in the Cloudfare Global API Key
+| Email | Enter your email address
+| Enable DNS alias mode | Leave Blank
+| Enable DNS domain alias mode | `☐ (Optional) Uses the challenge domain alias value as --domain-alias instead in the acme.sh call`
+| **Entry 4 - Domain SAN list**
+| Mode |`Enabled`
+| Domainname `radarr-site1.foo.bar` | *One entry per Cloudfare DNS A-record*
+| Method | `DNS-Cloudflare`
+| Mode | `Enabled`
+| Key | Fill in the Cloudfare Global API Key
+| Email | Enter your email address
+| Enable DNS alias mode | Leave Blank
+| Enable DNS domain alias mode | `☐ (Optional) Uses the challenge domain alias value as --domain-alias instead in the acme.sh call`
+| **Entry 5 - Domain SAN list**
+| Mode |`Enabled`
+| Domainname `sabnzbd-site1.foo.bar` | *One entry per Cloudfare DNS A-record*
+| Method | `DNS-Cloudflare`
+| Mode | `Enabled`
+| Key | Fill in the Cloudfare Global API Key
+| Email | Enter your email address
+| Enable DNS alias mode | Leave Blank
+| Enable DNS domain alias mode | `☐ (Optional) Uses the challenge domain alias value as --domain-alias instead in the acme.sh call`
+| **Entry 6 - Domain SAN list**
+| Mode |`Enabled`
+| Domainname `deluge-site1.foo.bar` | *One entry per Cloudfare DNS A-record*
+| Method | `DNS-Cloudflare`
+| Mode | `Enabled`
+| Key | Fill in the Cloudfare Global API Key
+| Email | Enter your email address
 | Enable DNS alias mode | Leave Blank
 | Enable DNS domain alias mode | `☐ (Optional) Uses the challenge domain alias value as --domain-alias instead in the acme.sh call`
 | DNS Sleep | Leave Blank
-| Action List
+| Action List `Add` | `/etc/rc.restart_webgui`
 | Last renewal | Leave Blank
 | Certificate renewal after | `90`
 
 Then click `Save`  followed by `Issue/Renew`. A review of the output will appear on the page and if successful you see a RSA key has been generated. The output should begin like this:
 
 ```
-wildcard.site1.foo.bar
+media-site1.foo.bar
 Renewing certificate
 account: foo-test
 server: letsencrypt-staging-2
 
 
-/usr/local/pkg/acme/acme.sh --issue -d 'site1.foo.bar' --dns 'dns_cf' -d '*.site1.foo.bar' --dns 'dns_cf' --home '/tmp/acme/wildcard.site1.foo.bar/' --accountconf '/tmp/acme/wildcard.site1.foo.bar/accountconf.conf' --force --reloadCmd '/tmp/acme/wildcard.site1.foo.bar/reloadcmd.sh' --log-level 3 --log '/tmp/acme/wildcard.site1.foo.bar/acme_issuecert.log'
+/usr/local/pkg/acme/acme.sh --issue -d 'jellyfin-site1.foo.bar' --dns 'dns_cf' -d 'sonarr-site1.foo.bar' --dns 'dns_cf' -d 'radarr-site1.foo.bar' --dns 'dns_cf' -d 'sabnzbd-site1.foo.bar' --dns 'dns_cf' -d 'deluge-site1.foo.bar' --dns 'dns_cf' -d  --home '/tmp/acme/media-site1.foo.bar/' --accountconf '/tmp/acme/media-site1.foo.bar/accountconf.conf' --force --reloadCmd '/tmp/acme/media-site1.foo.bar/reloadcmd.sh' --log-level 3 --log '/tmp/acme/media-site1.foo.bar/acme_issuecert.log'
 
 Array
 (
@@ -197,12 +240,18 @@ Array
 [Sat Aug 3 14:34:55 +07 2019] Registering account
 [Sat Aug 3 14:34:58 +07 2019] Already registered
 [Sat Aug 3 14:34:58 +07 2019] ACCOUNT_THUMBPRINT='XXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
-[Sat Aug 3 14:34:58 +07 2019] Multi domain='DNS:site1.foo.bar,DNS:*.site1.foo.bar'
+[Sat Aug 3 14:34:58 +07 2019] Multi domain='DNS:jellyfin-site1.foo.bar,DNS:sonarr-site1.foo.bar,radarr-site1.foo.bar,sabnzbd-site1.foo.bar,deluge-site1.foo.bar'
 [Sat Aug 3 14:34:58 +07 2019] Getting domain auth token for each domain
-[Sat Aug 3 14:35:12 +07 2019] Getting webroot for domain='site1.foo.bar'
-[Sat Aug 3 14:35:12 +07 2019] Getting webroot for domain='*.site1.foo.bar'
-[Sat Aug 3 14:35:12 +07 2019] site1.foo.bar is already verified, skip dns-01.
-[Sat Aug 3 14:35:12 +07 2019] *.site1.foo.bar is already verified, skip dns-01.
+[Sat Aug 3 14:35:12 +07 2019] Getting webroot for domain='jellyfin-site1.foo.bar'
+[Sat Aug 3 14:35:12 +07 2019] Getting webroot for domain='sonarr-site1.foo.bar'
+[Sat Aug 3 14:35:12 +07 2019] Getting webroot for domain='radarr-site1.foo.bar'
+[Sat Aug 3 14:35:12 +07 2019] Getting webroot for domain='sabnzbd-site1.foo.bar'
+[Sat Aug 3 14:35:12 +07 2019] Getting webroot for domain='deluge-site1.foo.bar'
+[Sat Aug 3 14:35:12 +07 2019] jellyfin-site1.foo.bar is already verified, skip dns-01.
+[Sat Aug 3 14:35:12 +07 2019] sonarr-site1.foo.bar is already verified, skip dns-01.
+[Sat Aug 3 14:35:12 +07 2019] radarr-site1.foo.bar is already verified, skip dns-01.
+[Sat Aug 3 14:35:12 +07 2019] sabnzbd-site1.foo.bar is already verified, skip dns-01.
+[Sat Aug 3 14:35:12 +07 2019] deluge-site1.foo.bar is already verified, skip dns-01.
 [Sat Aug 3 14:35:12 +07 2019] Verify finished, start to sign.
 [Sat Aug 3 14:35:12 +07 2019] Lets finalize the order, Le_OrderFinalize: https://acme-v02.api.letsencrypt.org/acme/finalize/XXXXXXXXXXXXXXXXXXXXX
 [Sat Aug 3 14:35:15 +07 2019] Download cert, Le_LinkCert: https://acme-v02.api.letsencrypt.org/acme/cert/XXXXXXXXXXXXXXXX
@@ -216,86 +265,254 @@ Once you're satisfied everything is configured correctly, edit the certificate a
 
 Final validation of your newly created LetsEncrypt certificate can be done by going to `System` > `Certificate Manager` > `Certificates`. It will show the issuer as something like **“Acmecert: 0=Let’s Encrypt,CN=Let’s Encrypt Authority X3,C=US”**.
 
-## 6.0 Create Certificate Authorities
-In the pfSense WebGUI go to `System` > `Certificate Manager` > `CAs`. Click `Add` and fill out the necessary fields as follows:
 
-| Create / Edit CA | Value
-| :--- | :--- 
-| Descriptive name | `site1.myserver Remote Access`
-| Method | `Create an internal Certificate Authority`
-| **Internal Certificate Authority**
-| Key Length (bits) | `4096`
-| Digest Algorithm | `SHA512`
-| Lifetime (days) | `3650`
-| Common Name | internal-ca
-| **The following certificate authority subject components are optional and may be left blank**
-| Country code | Choose your country
-| State | Type your State
-| City | Type your City
-| Organization | Leave Blank
-| Email address | Enter your email address
-| Common Name | `site1.myserver.com VPN Remote Access`
+## 6.0 Install HAProxy
+We need to install the HAProxy package on your pfSense.
 
-And click `Save`.
+In the pfSense WebGUI go to `System` > `Package Manager` > `Available Packages Tab` and search for `HAProxy`. Install `haproxy` package.
 
-## 7.0 Internal Certificates
-In the pfSense WebGUI go to `System` > `Certificate Manager` > `Certificates`. Click `Add/Sign` and fill out the necessary fields as follows:
+## 7.0 Proxy Settings
+In the pfSense WebGUI go to `Service` > `ACME` > `Settings` and fill out the necessary fields as follows:
 
-| Add/Sign a New Certificate | Value
+| Settings Tab | Value | Notes
 | :--- | :---
-| Method | `Create an internal Certificate`
-| Descriptive name | `vpn.site1.myserver.com`
-| **Internal Certificate**
-| Certificate authority | site1.myserver.com VPN Remote Access
-| Key Length | `4096`
-| Digest Algorithm | `SHA512`
-| Lifetime (days) | `3650`
-| Common Name | vpn.site1.myserver.com
-| Country code | Leave as Default
-| State | Leave as Default
-| City | Leave as Default
-| Organization | Leave as Default
-| Organisational Unit | site1.myserver.me VPN Remote Access
-| **Certificate Attributes**
-| Attribute Notes
-| Certificate Type | `Server Certificate`
-| Alternate Names | Leave as Default
+| Enable HAProxy | `☑` 
+| Maximum connections | `256`
+| Number of processes to start | `1`
+| Number of theads to start per process | `1`
+| Reload behaviour | `☑ Force immediate stop of old process on reload. (closes existing connections)`
+| Reload stop behaviour | Leave default
+| Carp monitor | `Disabled`
+| **Stats tab, 'internal' stats port**
+| Internal stats port  | `2200`
+| Internal stats refresh rate | Leave blank
+| Sticktable page refresh rate | Leave blank
+| **Logging**
+| Remote syslog host | Leave blank
+| Syslog facility | `local0`
+| Syslog level | `Informational`
+| Log hostname | Leave blank
+| **Global DNS resolvers for haproxy**
+| DNS servers | Leave blank
+| Retries | Leave blank
+| Retry timeout | Leave blank
+| Interval | Leave blank
+| **Global email notifications**
+| Mailer servers | Leave blank
+| Mail level | Leave blank
+| Mail myhostname | Leave blank
+| Mail from | Leave blank
+| Mail to | Leave blank
+| **Tuning**
+| Max SSL Diffie-Hellman size | `2048`
+| **Global Advanced pass thru**
+| Custom options | Leave Blank
+| **Configuration synchronization**
+| HAProxy Sync | `☐  Sync HAProxy configuration to backup CARP members via XMLRPC.`
 
 And click `Save`.
 
-## 8.0 User Certificates
-You can create user certificates for each user that will be allowed to access to your VPN features.
+## 8.0 Frontend Settings
+All of the connection requests will be coming in to the same IP address and port but we need a way to distinguish between requests so that those for jellyfin-site1.foo.bar go to the jellyfin backend and those for sonarr-site1.foo.bar go to the sonarr backend.
 
-In the pfSense WebGUI go to `System` > `Certificate Manager` > `Certificates`. Click `Add/Sign` and fill out the necessary fields as follows:
+So we will create a shared front end and then sub front ends for each subdomain.
 
-| Add/Sign a New Certificate | Value
-| :--- | :---
-| Method | `Create an internal Certificate`
-| Descriptive name | `vpn.site1.myserver.com Username`
-| **Internal Certificate**
-| Certificate authority | site1.myserver.com VPN Remote Access
-| Key Length | `4096`
-| Digest Algorithm | `SHA512`
-| Lifetime (days) | `3650`
-| Common Name | `vpn.site1.myserver.com Username`
-| Country code | Leave as Default
-| State | Leave as Default
-| City | Leave as Default
-| Organization | Leave as Default
-| Organisational Unit | site1.myserver.me VPN Remote Access
-| **Certificate Attributes**
-| Attribute Notes
-| Certificate Type | `Server Certificate`
-| **Alternate Names**
-| Type | `email address`
-| Value | Enter Usernames email address
+### 8.1 Shared Frontend
+In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
+
+| Edit HAProxy Frontend | Value | Notes
+| :--- | :--- | :---
+| Name | `shared-frontend`
+| Description | `Shared Frontend`
+| Status `Active`
+| **External address**
+| Listen address | `WAN address (IPv4)`
+| Custom address | Leave blank
+| Port `443`
+| SSL offloading | `☑` 
+| Advanced | Leave blank
+|
+| Max Connections | `500`
+| Type | `http / https(offloading)`
+| **Default backend, access control lists and actions**
+| Access Control lists | Leave blank
+| Actions | Leave blank
+| Default Backend | `None`
+| **Stats options**
+| Separate sockets | `☐ Enable collecting & providing separate statistics for each socket.`
+| **Logging options**
+| Don't log null | `☐ A connection on which no data has been transferred will not be logged.`
+| Don't log normal | `☐ Don't log connections in which no anomalies are found.`
+| Raise level for errors | `☐ Change the level from "info" to "err" for potentially interesting information.`
+| Detailed logging | `☐ If checked provides more detailed logging.`
+| **Error files**
+| Error files | Leave blank
+| **Advanced settings**
+| Client timeout | Leave blank
+| Use "forwardfor" option | `☑ Use "forwardfor" option.`
+| Use "httpclose" option | `http=keep-alive (default)`
+| Bind pass thru | Leave blank
+| Advanced pass thru | Leave blank
+| ** SSL Offloading**
+|SNI filter | Leave blank
+| Certificate | `site1.foo.bar (CA: Acmecert: 0=Let’s Encrypt,CN=Let’s Encrypt Authority X3,C=US)[Server cert]`
+| Add ACL for certificate CommonName | `☑`
+| Add ACL for certificate Subject Alternative Names | `☑`
+| OCSP | `☐  Load certificate ocsp responses for easy certificate validation by the client.`
+| Additional certificates | Leave blank
+| Add ACL for certificate CommonName | `☐`
+| Add ACL for certificate Subject Alternative Names | `☐`
+| Advanced ssl options | Leave blank
+| Advanced certificate specific ssl options | Leave blank
+| **SSL Offloading - client certificates**
+| Without client cert | `☐ Allows clients without a certificate to connect`
+| Allow invalid cert | `☐ Allows client with a invalid/expired/revoked or otherwise wrong certificate to connect`
+| Client verification CA certificates | Leave blank
+| Client verification CRL | Leave blank
 
 And click `Save`.
 
-## 9.0 Install HAProxy
+### 8.2 Jellyfin authentication frontend
+In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
+| Edit HAProxy Frontend | Value | Notes
+| :--- | :--- | :---
+| Name | `jellyfin-site1.foo.bar`
+| Description | `Jellyfin authenticated frontend`
+| Status `Active`
+| Shared Frontend | `☑`
+| Primary frontend | `shared-frontend - http`
+| **Default backend, access control lists and actions**
+| **Access Control lists**
+| Table-Name | `jellyfin-acl`
+| Table-Expresssion | `Host matches:`
+| Table-CS | `☐`
+| Table-Not | `☐`
+| Table-Value| `jellyfin-site1.foo.bar`
+| **Actions**
+| Table-Action | `Use Backend`
+| Table-Parameters | Leave blank
+| Table-Conditions acl names | `jellyfin-acl`
+| Default Backend | `None`
+| **Error files**
+| Error files | Leave blank
+| **SSL Offloading**
+| Use offloading | `☐ Specify additional certificates for this shared-frontend`
 
+And click `Save`.
 
+### 8.3 Sonarr authentication frontend
+In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
+| Edit HAProxy Frontend | Value | Notes
+| :--- | :--- | :---
+| Name | `sonarr-site1.foo.bar`
+| Description | `Sonarr authenticated frontend`
+| Status `Active`
+| Shared Frontend | `☑`
+| Primary frontend | `shared-frontend - http`
+| **Default backend, access control lists and actions**
+| **Access Control lists**
+| Table-Name | `sonarr-acl`
+| Table-Expresssion | `Host matches:`
+| Table-CS | `☐`
+| Table-Not | `☐`
+| Table-Value| `sonarr-site1.foo.bar`
+| **Actions**
+| Table-Action | `Use Backend`
+| Table-Parameters | Leave blank
+| Table-Conditions acl names | `sonarr-acl`
+| Default Backend | `None`
+| **Error files**
+| Error files | Leave blank
+| **SSL Offloading**
+| Use offloading | `☐ Specify additional certificates for this shared-frontend`
 
+And click `Save`.
 
+### 8.4 Radarr authentication frontend
+In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
+
+| Edit HAProxy Frontend | Value | Notes
+| :--- | :--- | :---
+| Name | `radarr-site1.foo.bar`
+| Description | `Radarr authenticated frontend`
+| Status `Active`
+| Shared Frontend | `☑`
+| Primary frontend | `shared-frontend - http`
+| **Default backend, access control lists and actions**
+| **Access Control lists**
+| Table-Name | `radarr-acl`
+| Table-Expresssion | `Host matches:`
+| Table-CS | `☐`
+| Table-Not | `☐`
+| Table-Value| `radarr-site1.foo.bar`
+| **Actions**
+| Table-Action | `Use Backend`
+| Table-Parameters | Leave blank
+| Table-Conditions acl names | `radarr-acl`
+| Default Backend | `None`
+| **Error files**
+| Error files | Leave blank
+| **SSL Offloading**
+| Use offloading | `☐ Specify additional certificates for this shared-frontend`
+
+And click `Save`.
+
+### 8.5 Sabnzbd authentication frontend
+In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
+
+| Edit HAProxy Frontend | Value | Notes
+| :--- | :--- | :---
+| Name | `sabnzbd-site1.foo.bar`
+| Description | `Sabnzbd authenticated frontend`
+| Status `Active`
+| Shared Frontend | `☑`
+| Primary frontend | `shared-frontend - http`
+| **Default backend, access control lists and actions**
+| **Access Control lists**
+| Table-Name | `sabnzbd-acl`
+| Table-Expresssion | `Host matches:`
+| Table-CS | `☐`
+| Table-Not | `☐`
+| Table-Value| `sabnzbd-site1.foo.bar`
+| **Actions**
+| Table-Action | `Use Backend`
+| Table-Parameters | Leave blank
+| Table-Conditions acl names | `sabnzbd-acl`
+| Default Backend | `None`
+| **Error files**
+| Error files | Leave blank
+| **SSL Offloading**
+| Use offloading | `☐ Specify additional certificates for this shared-frontend`
+
+And click `Save`.
+
+### 8.6 Deluge authentication frontend
+In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
+
+| Edit HAProxy Frontend | Value | Notes
+| :--- | :--- | :---
+| Name | `deluge-site1.foo.bar`
+| Description | `Deluge authenticated frontend`
+| Status `Active`
+| Shared Frontend | `☑`
+| Primary frontend | `shared-frontend - http`
+| **Default backend, access control lists and actions**
+| **Access Control lists**
+| Table-Name | `deluge-acl`
+| Table-Expresssion | `Host matches:`
+| Table-CS | `☐`
+| Table-Not | `☐`
+| Table-Value| `deluge-site1.foo.bar`
+| **Actions**
+| Table-Action | `Use Backend`
+| Table-Parameters | Leave blank
+| Table-Conditions acl names | `deluge-acl`
+| Default Backend | `None`
+| **Error files**
+| Error files | Leave blank
+| **SSL Offloading**
+| Use offloading | `☐ Specify additional certificates for this shared-frontend`
+
+And click `Save`.
