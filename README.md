@@ -1,11 +1,13 @@
 # HAProxy in pfSense
-If you want convenient remote access to your LXC's and/or Apps the easiest way is to setup HAProxy application addon in pfSense. Then you will have access to your Apps using address URLS like:
+A reverse proxy server is a type of proxy server that typically sits behind a firewall in a private network and directs client requests to the appropriate backend server. A reverse proxy provides an additional level of abstraction and control to ensure the smooth flow of network traffic between clients and servers.
+
+If you want a convenient remote internet access to your LXC's and/or Apps within your network the easiest way is to setup HAProxy which is addon in pfSense.
+
+With HAProxy you will have access to your Apps and internal servers using address URLS like:
 >  unifi-site1.foo.bar --> unifi 192.168.1.251
 >  appname-site1.foo.bar --> appname 192.168.1.XXX
 
 pfSense package manager has a ready built distribution of HAProxy.
-
-This guide helped me so much and much of what I have written here was harvested from this [GUIDE](https://www.chucknemeth.com/pfsense-haproxy-port-443/)
 
 Network prerequisites are:
 - [x] Layer 2 Network Switches
@@ -19,8 +21,8 @@ Other Prerequisites are:
 - [x] You own a registered Domain name
 
 Tasks to be performed are:
-- [ ] 1.0 Proxmox Base OS Installation
-- [ ] 2.0 Prepare your Network Hardware - Ready for Typhoon-01
+- [ ] 1.0 Create a Cloudfare Acccount
+- [ ] 2.0 Configure your domains at Cloudfare
 - [ ] 3.0 Easy Installation Option
 - [ ] 4.0 Basic Proxmox node configuration
 - [ ] 5.0 Create a Proxmox pfSense VM on typhoon-01
@@ -49,8 +51,24 @@ First login to your Cloudfare Dashboard Home, choose your domain and go to `DNS 
 | `A` | `deluge-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
 | `A` | `vpn-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
 
-### 2.2 Disable Cloudfare Crypto
-Using your Cloudfare Dashboard Home, choose your domain and go to `Crypto TAB`. Under the section `SSL - Encrypt communication to and from your website using SSL` disable the service by setting it to the `Off` state.
+### 2.2 Cloudfare Crypto
+Using your Cloudfare Dashboard Home, choose your domain and go to `Crypto TAB`. Using the Cloudfare web interface edit the following form entries to match the table below:
+
+| Crpto | Value | Notes
+| :---: | :---: | :---
+| SSL | `Full` | *The section should show **Universal SSL Status Active Certificate***
+| Edge Certificates | Leave Default
+| Custom Hostnames | Leave Default
+| Origin Certificates | Leave Default
+| Always Use HTTPS | `On`
+| HTTP Strict Transport Security (HSTS) | Leave Default
+| Authenticated Origin Pulls | `On`
+| Minimum TLS Version | `TLS 1.0 (default)`
+| Opportunistic Encryption | `On`
+| Onion Routing  | `On`
+| TLS 1.3  | `On`
+| Automatic HTTPS Rewrites | `Off`
+| Disable Universal SSL | Leave Default
 
 ## 3.0 pfSense Dynamic DNS
 Cloudfare provides you with a API key (called the Global API Key)which gives pfSense the rights to update your domains DNS information. So have your Cloudfare Global API key ready by:
@@ -63,19 +81,21 @@ We need to configure pfSense to send the DynamicDNS infornmation to Cloudflare. 
 
 | Dynamic DNS Client | Value | Notes
 | :--- | :--- | :---
-| **jellyfin.site1.foo.bar**
+| **jellyfin-site1.foo.bar**
 | Disable | `☐` Disable this client |*Uncheck*
 | Service Type | `Cloudfare`
 | Interface to monitor | `WAN`
-| Hostname | `jellyfin.site1`
+| Hostname | `jellyfin-site1` | *Replace site1 with your location i.e home, mancave, beachhouse*
 | Domain | `foo.bar` | *Replace with your domain name.*
 | MX | Leave Blank
-| Wildcards | `☑` Enable Wildcard
-| Cloudflare Proxy | Enable Proxy
+| Wildcards | `☐ Enable Wildcard` | *Disable wildcards*
+| Cloudflare Proxy | `☑ Enable Proxy`
 | Verbose logging | `☑` Enable verbose logging
 | Username | Enter your Cloudfare Accounts reg'd Email Address
 | Password | Enter your Global API Key | *See section 3.0*
 | Description | `jellyfin-site1.foo.bar`
+
+And click `Save & Force Update`. Now check your Cloudfare DNS A-records your created [HERE]( and all the IP values should change from 0.0.0.0 to your WAN IP address.
 
 
 ## 4.0 Install ACME on pfSense
