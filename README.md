@@ -565,4 +565,6 @@ Backends are your server nodes.
 | Backend pass thru | Leave blank
 | Transparent ClientIP | `☐  Use Client-IP to connect to backend servers`
 
-And click `Save`
+And click `Save`.
+
+Repeat for all your backend servers editing the `server list table` - change to new name and corresponding server IP address.
