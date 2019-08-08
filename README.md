@@ -5,7 +5,7 @@ If you want a convenient remote internet access to your LXC's and/or Apps within
 
 With HAProxy you will have access to your Apps and internal servers using address URLS like:
 >  unifi-site1.foo.bar --> unifi 192.168.1.251
->  appname-site1.foo.bar --> appname 192.168.1.XXX
+appname-site1.foo.bar --> appname 192.168.1.XXX
 
 pfSense package manager has a ready built distribution of HAProxy.
 
