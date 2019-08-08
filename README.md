@@ -4,7 +4,7 @@ A reverse proxy server is a type of proxy server that typically sits behind a fi
 If you want a convenient remote internet access to your LXC's and/or Apps within your network the easiest way is to setup HAProxy which is addon in pfSense.
 
 With HAProxy you will have access to your Apps and internal servers using address URLS like:
->  unifi-site1.foo.bar --> unifi 192.168.1.251
+>  https://unifi-site1.foo.bar --> unifi 192.168.1.251
 
 pfSense package manager has a ready built distribution of HAProxy.
 
