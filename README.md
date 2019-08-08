@@ -274,7 +274,7 @@ In the pfSense WebGUI go to `System` > `Package Manager` > `Available Packages T
 In the pfSense WebGUI go to `Service` > `ACME` > `Settings` and fill out the necessary fields as follows:
 
 | Settings Tab | Value | Notes
-| :--- | :---
+| :--- | :--- | :---
 | Enable HAProxy | `☑` 
 | Maximum connections | `256`
 | Number of processes to start | `1`
