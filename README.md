@@ -274,7 +274,30 @@ We need to install the HAProxy package on your pfSense.
 
 In the pfSense WebGUI go to `System` > `Package Manager` > `Available Packages Tab` and search for `HAProxy`. Install `haproxy` package.
 
-## 7.0 Proxy Settings
+## 7.0 Edit your UniFi network firewall
+You should've already done this task if you followed these [instructions](https://github.com/ahuacate/proxmox-node/blob/master/README.md#25-edit-your-unifi-network-firewall). If not here they are again.
+
+On your Proxmox Qotom build (typhoon-01) NIC ports enp3s0 & enp4s0 are bonded to create LAG `bond1`. You will then create in Proxmox a Linux Bridge using `bond1` called `vmbr2`. When you install pfSense VM on typhoon-01 the pfSense and HAProxy software will assign `vmbr2` (bond1) as its WAN interface NIC.
+
+This WAN interface is VLAN2 and named in the UniFi controller software as `VPN-egress`. It's configured with network `Guest security policies` in the UniFi controller therefore it has no access to other network VLANs. The reason for this is explained build recipe for `VPN-egress` shown [HERE](https://github.com/ahuacate/proxmox-node#22-create-network-switch-vlans).
+
+For HAProxy to work you must authorise VLAN2 (WAN in pfSense HAProxy) to have access to your Proxmox LXC server nodes with static IPv4 addresses on VLAN50.
+
+The below instructions are for a UniFi controller `Settings` > `Guest Control`  and look under the `Access Control` section. Under `Pre-Authorization Access` click`**+** Add IPv4 Hostname or subnet` to add the following IPv4 addresses to authorise access for VLAN2 clients:fill out the form details as shown below:
+
+| + Add IPv4 Hostname or subnet | Value | Notes
+| :---  | :---: | :---
+| IPv4 | 192.168.50.111 | *Jellyfin Server*
+| IPv4 | 192.168.50.112 | *Sonarr Server*
+| IPv4 | 192.168.50.113 | *Radarr Server*
+| IPv4 | 192.168.50.114 | *Sabnzbd Server*
+| IPv4 | 192.168.50.115 | *Deluge Server*
+
+And click `Apply Changes`.
+
+As you've probably concluded you must add any new HAProxy backend server IPv4 address(s) to the Unifi Pre-Authorization Access list for HAProxy frontend to have access to those backend VLAN50 servers.
+
+## 8.0 HAProxy General Settings
 In the pfSense WebGUI go to `Service` > `ACME` > `Settings` and fill out the necessary fields as follows:
 
 | Settings Tab | Value 
@@ -315,12 +338,12 @@ In the pfSense WebGUI go to `Service` > `ACME` > `Settings` and fill out the nec
 
 And click `Save`.
 
-## 8.0 Frontend Settings
+## 9.0 HAProxy Frontend Settings
 All of the connection requests will be coming in to the same IP address and port but we need a way to distinguish between requests so that those for jellyfin-site1.foo.bar go to the jellyfin backend and those for sonarr-site1.foo.bar go to the sonarr backend.
 
 So we will create a shared front end and then sub front ends for each subdomain.
 
-### 8.1 Shared Frontend
+### 9.1 Shared Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value 
@@ -374,7 +397,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 8.2 Jellyfin authentication Frontend
+### 9.2 Jellyfin authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
@@ -403,7 +426,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 8.3 Sonarr authentication Frontend
+### 9.3 Sonarr authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
@@ -432,7 +455,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 8.4 Radarr authentication Frontend
+### 9.4 Radarr authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
@@ -461,7 +484,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 8.5 Sabnzbd authentication Frontend
+### 9.5 Sabnzbd authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
@@ -490,7 +513,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 8.6 Deluge authentication Frontend
+### 9.6 Deluge authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
@@ -519,10 +542,10 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-## 9.0 Backend Settings
+## 10.0 HAProxy Backend Settings
 HAProxy backend section defines a group of servers that will be assigned to handle requests. A backend server responds to incoming requests if a given condition is true.
 
-### 9.1 Jellyfin Backend
+### 10.1 Jellyfin Backend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Backend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Backend server pool | Value
@@ -588,7 +611,7 @@ Repeat for all your backend servers. To make life easy you can click the `Copy` 
 
 And click `Save`.
 
-## 10.0 Fix for pfSense Dynamic DNS
+## 11.0 Fix for pfSense Dynamic DNS
 If your ISP frequently changes your WAN IP you may run into problems with out of date Cloudfare A-records pointing to an out of date IP address.
 
 It appears updates may take place if the WAN interface IP address changes, but not if the pfSense device is behind a router, gateway or firewall.
@@ -597,10 +620,10 @@ You will know if you have problem when you cannot remotely access your server no
 
 The work around is to install a CRON manager.
 
-### 10.1 Install a Cron Manager
+### 11.1 Install a Cron Manager
 In the pfSense WebGUI go to `System` > `Package Manager` > `Available Packages Tab` and search for `Cron`. Install the `Cron` package.
 
-### 10.2 Configure your Dynamic DNS Cron Schedule
+### 11.2 Configure your Dynamic DNS Cron Schedule
 In the pfSense WebGUI go to `Services` > `Cron` > `Settings Tab` and click on the pencil for entry with `rc.dyndns.update` in its command name.  Edit the necessary fields as follows:
 
 | Add A Cron Schedule | Value
