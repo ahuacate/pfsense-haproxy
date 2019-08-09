@@ -520,9 +520,10 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 And click `Save`.
 
 ## 9.0 Backend Settings
-Backends are your server nodes.
+HAProxy backend section defines a group of servers that will be assigned to handle requests. A backend server responds to incoming requests if a given condition is true.
 
 ### 9.1 Jellyfin Backend
+In the pfSense WebGUI go to `Service` > `HAProxy` > `Backend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Backend server pool | Value
 | :--- | :---
@@ -572,4 +573,46 @@ Backends are your server nodes.
 
 And click `Save`.
 
-Repeat for all your backend servers editing the `server list table` - change to new name and corresponding server IP address.
+Repeat for all your backend servers. To make life easy you can click the `Copy` icon under `Actions` to duplicate your first backend entry (i.e jellyfin-site1.foo.bar). Then edit the copied entry/duplicate changing the following particulars to meet other server needs:
+
+| Edit HAProxy Backend server pool | Jellyfin Value | Sonarr Value | Radarr Value | Sabnzbd Value | Deluge Value
+| :--- | :--- | :--- | :--- | :--- | :---
+| Name | `jellyfin-site1.foo.bar` | `sonarr-site1.foo.bar` | `radarr-site1.foo.bar` | `sabnzbd-site1.foo.bar` | `deluge-site1.foo.bar` 
+| Server list
+| Table-Mode | `active` | `active` | `active` | `active` | `active` 
+| Table-Name | `jellyfin` | `sonarr` | `radarr` | `sabnzbd` | `deluge`
+| Table-Forwardto | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port`
+| Table-Address | `192.168.50.111` | `192.168.50.112` | `192.168.50.113` | `192.168.50.114` | `192.168.50.115`
+| Table-Port | `8096` | `8989` | `7878` | `8080` | `8112`
+| Remaining fields are common
+
+And click `Save`.
+
+## 10.0 Fix for pfSense Dynamic DNS
+If your ISP frequently changes your WAN IP you may run into problems with out of date Cloudfare A-records pointing to an out of date IP address.
+
+It appears updates may take place if the WAN interface IP address changes, but not if the pfSense device is behind a router, gateway or firewall.
+
+You will know if you have problem when you cannot remotely access your server node, the pfSense `Services` > `Dynamic DNS` > `Dynamic DNS Clients` page shows cached IP addresses in red indicating that pfSense knows the cashed IP address is not the current public WAN IP and that is has not updated the Dynamic DNS host (Cloudfare) with the current public WAN IP. 
+
+The work around is to install a CRON manager.
+
+### 10.1 Install a Cron Manager
+In the pfSense WebGUI go to `System` > `Package Manager` > `Available Packages Tab` and search for `Cron`. Install the `Cron` package.
+
+### 10.2 Configure your Dynamic DNS Cron Schedule
+In the pfSense WebGUI go to `Services` > `Cron` > `Settings Tab` and click on the pencil for entry with `rc.dyndns.update` in its command name.  Edit the necessary fields as follows:
+
+| Add A Cron Schedule | Value
+| :--- | :---
+| Minute | `*/5`
+| Hour | `*`
+| Day of the Month | `*`
+| Month of the Year | `*`
+| Day of the Week | `*`
+| User | `root`
+| Command | Leave default
+
+And click `Save`.
+
+This will force pfsense tocheck for WAN IP changes every 5 minutes.
