@@ -26,9 +26,11 @@ Tasks to be performed are:
 - [ ] 4.0 Install ACME on pfSense
 - [ ] 5.0 Generate ACME Certificates
 - [ ] 6.0 Install HAProxy
-- [ ] 7.0 Proxy Settings
-- [ ] 8.0 Frontend Settings
-- [ ] 9.0 Backend Settings
+- [ ] 7.0 Edit your UniFi network firewall
+- [ ] 8.0 HAProxy Settings
+- [ ] 9.0 HAProxy Frontend Settings
+- [ ] 10.0 HAProxy Backend Settings
+- [ ] 11.0 Fix for pfSense Dynamic DNS
 
 ## 1.0 Create a Cloudfare Acccount
 I recommend you redirect your domain DNS Names Servers to Cloudfare. Not only are Cloudfare DNS servers fast, they also have an API Key for configuring your DNS records automatically and provide a **free Dynamic DNS service**. If you want to use Cloudfare DNS name servers you can create a free account at Cloudfare.
