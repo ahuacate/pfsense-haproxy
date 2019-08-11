@@ -646,12 +646,14 @@ This will force pfsense tocheck for WAN IP changes every 5 minutes.
 Tweaks and fixes to make broken things work - sometimes.
 
 ### 00.10 pfSense Dynanic DNS Cloudflare with proxy enabled doesn't work at all
-Fix for log errors likebthis:
+Fix for log errors like this:
+
 ```
  PAYLOAD: {"success":false,"errors":[{"code":1004,"message":"DNS Validation Error","error_chain":[{"code":9003,"message":"Invalid 'proxied' value, must be a boolean"}]}],"messages":[],"result":null}
  ```
  
 In the pfSense WebGUI go to `Diagnostics` > `Edit File` > `Browse Tab` and browse to folder /etc/inc/ and select `services.inc` file. Now use the `GoTo line` field and type in `1881`. Replace `$dnsWildcard = $conf['wildcard'],` with `$dnsProxied = isset($conf['proxied']),` and click `Save`. Reboot pfSense.
+
 ```
 	$dns = new updatedns($dnsService = $conf['type'],
 		$dnsHost = $conf['host'],
@@ -659,7 +661,7 @@ In the pfSense WebGUI go to `Diagnostics` > `Edit File` > `Browse Tab` and brows
 		$dnsUser = $conf['username'],
 		$dnsPass = $conf['password'],
 		$dnsWildcard = $conf['wildcard'],
-    **$dnsProxied = isset($conf['proxied']),**
+    $dnsProxied = isset($conf['proxied']),
 		$dnsMX = $conf['mx'],
 ```
 
