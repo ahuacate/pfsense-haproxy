@@ -661,7 +661,7 @@ In the pfSense WebGUI go to `Diagnostics` > `Edit File` > `Browse Tab` and brows
 		$dnsUser = $conf['username'],
 		$dnsPass = $conf['password'],
 		$dnsWildcard = $conf['wildcard'],
-    $dnsProxied = isset($conf['proxied']),
+                $dnsProxied = isset($conf['proxied']),
 		$dnsMX = $conf['mx'],
 ```
 
