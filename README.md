@@ -100,7 +100,7 @@ We need to configure pfSense to send the DynamicDNS infornmation to Cloudflare. 
 | Password | Enter your Global API Key | *See section 3.0*
 | Description | `jellyfin-site1.foo.bar`
 
-And click `Save & Force Update`. Now repeat the above steps for all your Cloudfare DNS A-record entries and servers (i.e `radarr-site1`, `sonarr-site1`, `sabnzbd-site1`, `deluge-site1`, `vpn-site1` etc)
+And click `Save & Force Update`. Now repeat the above steps for all your Cloudfare DNS A-record entries and servers (i.e `radarr-site1`, `sonarr-site1`, `nzbget-site1`, `deluge-site1`, `vpn-site1` etc)
 
 Then check your Cloudfare DNS A-records your created [HERE](https://github.com/ahuacate/proxmox-reverseproxy/blob/master/README.md#21-create-dns-a-records-for-your-servers) and all your servers IP values should change from 0.0.0.0 to your WAN IP address.
 
@@ -155,7 +155,7 @@ Then click the `Register ACME Account key`. The little cog will spin and if it w
 Finally click `Save`.
 
 ### 5.2 Create ACME Certificates
-In the pfSense WebGUI go to `Services` > `Acme Certificates` > `Certificates`. Click `Add` and fill out the necessary fields as follows. Notice I have multiple entries in the Domain SAN List. This means the same certificate will be used for each server connection. In this example we will get a certificate that covers `jellyfin-site1`, `radarr-site1`, `sonarr-site1`, `sabnzbd-site1` and `deluge-site1` - basically all your media server connections.
+In the pfSense WebGUI go to `Services` > `Acme Certificates` > `Certificates`. Click `Add` and fill out the necessary fields as follows. Notice I have multiple entries in the Domain SAN List. This means the same certificate will be used for each server connection. In this example we will get a certificate that covers `jellyfin-site1`, `radarr-site1`, `sonarr-site1`, `nzbget-site1` and `deluge-site1` - basically all your media server connections.
 
 | Edit Certificate options | Value
 | :--- | :---
@@ -203,7 +203,7 @@ In the pfSense WebGUI go to `Services` > `Acme Certificates` > `Certificates`. C
 | Enable DNS domain alias mode | `☐ (Optional) Uses the challenge domain alias value as --domain-alias instead in the acme.sh call`
 | **Entry 5 - Domain SAN list**
 | Mode |`Enabled`
-| Domainname `sabnzbd-site1.foo.bar` | *One entry per Cloudfare DNS A-record*
+| Domainname `nzbget-site1.foo.bar` | *One entry per Cloudfare DNS A-record*
 | Method | `DNS-Cloudflare`
 | Mode | `Enabled`
 | Key | Fill in the Cloudfare Global API Key
@@ -233,7 +233,7 @@ account: foo-test
 server: letsencrypt-staging-2
 
 
-/usr/local/pkg/acme/acme.sh --issue -d 'jellyfin-site1.foo.bar' --dns 'dns_cf' -d 'sonarr-site1.foo.bar' --dns 'dns_cf' -d 'radarr-site1.foo.bar' --dns 'dns_cf' -d 'sabnzbd-site1.foo.bar' --dns 'dns_cf' -d 'deluge-site1.foo.bar' --dns 'dns_cf' -d  --home '/tmp/acme/media-site1.foo.bar/' --accountconf '/tmp/acme/media-site1.foo.bar/accountconf.conf' --force --reloadCmd '/tmp/acme/media-site1.foo.bar/reloadcmd.sh' --log-level 3 --log '/tmp/acme/media-site1.foo.bar/acme_issuecert.log'
+/usr/local/pkg/acme/acme.sh --issue -d 'jellyfin-site1.foo.bar' --dns 'dns_cf' -d 'sonarr-site1.foo.bar' --dns 'dns_cf' -d 'radarr-site1.foo.bar' --dns 'dns_cf' -d 'nzbget-site1.foo.bar' --dns 'dns_cf' -d 'deluge-site1.foo.bar' --dns 'dns_cf' -d  --home '/tmp/acme/media-site1.foo.bar/' --accountconf '/tmp/acme/media-site1.foo.bar/accountconf.conf' --force --reloadCmd '/tmp/acme/media-site1.foo.bar/reloadcmd.sh' --log-level 3 --log '/tmp/acme/media-site1.foo.bar/acme_issuecert.log'
 
 Array
 (
@@ -245,17 +245,17 @@ Array
 [Sat Aug 3 14:34:55 +07 2019] Registering account
 [Sat Aug 3 14:34:58 +07 2019] Already registered
 [Sat Aug 3 14:34:58 +07 2019] ACCOUNT_THUMBPRINT='XXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
-[Sat Aug 3 14:34:58 +07 2019] Multi domain='DNS:jellyfin-site1.foo.bar,DNS:sonarr-site1.foo.bar,radarr-site1.foo.bar,sabnzbd-site1.foo.bar,deluge-site1.foo.bar'
+[Sat Aug 3 14:34:58 +07 2019] Multi domain='DNS:jellyfin-site1.foo.bar,DNS:sonarr-site1.foo.bar,radarr-site1.foo.bar,nzbget-site1.foo.bar,deluge-site1.foo.bar'
 [Sat Aug 3 14:34:58 +07 2019] Getting domain auth token for each domain
 [Sat Aug 3 14:35:12 +07 2019] Getting webroot for domain='jellyfin-site1.foo.bar'
 [Sat Aug 3 14:35:12 +07 2019] Getting webroot for domain='sonarr-site1.foo.bar'
 [Sat Aug 3 14:35:12 +07 2019] Getting webroot for domain='radarr-site1.foo.bar'
-[Sat Aug 3 14:35:12 +07 2019] Getting webroot for domain='sabnzbd-site1.foo.bar'
+[Sat Aug 3 14:35:12 +07 2019] Getting webroot for domain='nzbget-site1.foo.bar'
 [Sat Aug 3 14:35:12 +07 2019] Getting webroot for domain='deluge-site1.foo.bar'
 [Sat Aug 3 14:35:12 +07 2019] jellyfin-site1.foo.bar is already verified, skip dns-01.
 [Sat Aug 3 14:35:12 +07 2019] sonarr-site1.foo.bar is already verified, skip dns-01.
 [Sat Aug 3 14:35:12 +07 2019] radarr-site1.foo.bar is already verified, skip dns-01.
-[Sat Aug 3 14:35:12 +07 2019] sabnzbd-site1.foo.bar is already verified, skip dns-01.
+[Sat Aug 3 14:35:12 +07 2019] nzbget-site1.foo.bar is already verified, skip dns-01.
 [Sat Aug 3 14:35:12 +07 2019] deluge-site1.foo.bar is already verified, skip dns-01.
 [Sat Aug 3 14:35:12 +07 2019] Verify finished, start to sign.
 [Sat Aug 3 14:35:12 +07 2019] Lets finalize the order, Le_OrderFinalize: https://acme-v02.api.letsencrypt.org/acme/finalize/XXXXXXXXXXXXXXXXXXXXX
@@ -292,7 +292,7 @@ The below instructions are for a UniFi controller `Settings` > `Guest Control`  
 | IPv4 | 192.168.50.111 | *Jellyfin Server*
 | IPv4 | 192.168.50.112 | *Sonarr Server*
 | IPv4 | 192.168.50.113 | *Radarr Server*
-| IPv4 | 192.168.50.114 | *Sabnzbd Server*
+| IPv4 | 192.168.50.114 | *Nzbget Server*
 | IPv4 | 192.168.50.115 | *Deluge Server*
 
 And click `Apply Changes`.
@@ -486,27 +486,27 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 9.5 Sabnzbd authentication Frontend
+### 9.5 Nzbget authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
 | :--- | :---
-| Name | `sabnzbd-site1.foo.bar`
-| Description | `Sabnzbd authenticated frontend`
+| Name | `nzbget-site1.foo.bar`
+| Description | `Nzbget authenticated frontend`
 | Status `Active`
 | Shared Frontend | `☑`
 | Primary frontend | `shared-frontend - http`
 | **Default backend, access control lists and actions**
 | **Access Control lists**
-| Table-Name | `sabnzbd-acl`
+| Table-Name | `nzbget-acl`
 | Table-Expresssion | `Host matches:`
 | Table-CS | `☐`
 | Table-Not | `☐`
-| Table-Value| `sabnzbd-site1.foo.bar`
+| Table-Value| `nzbget-site1.foo.bar`
 | **Actions**
 | Table-Action | `Use Backend`
 | Table-Parameters | Leave blank
-| Table-Conditions acl names | `sabnzbd-acl`
+| Table-Conditions acl names | `nzbget-acl`
 | Default Backend | `None`
 | **Error files**
 | Error files | Leave blank
@@ -600,12 +600,12 @@ And click `Save`.
 
 Repeat for all your backend servers. To make life easy you can click the `Copy` icon under `Actions` to duplicate your first backend entry (i.e jellyfin-site1.foo.bar). Then edit the copied entry/duplicate changing the following particulars to meet other server needs:
 
-| Edit HAProxy Backend server pool | Jellyfin Value | Sonarr Value | Radarr Value | Sabnzbd Value | Deluge Value
+| Edit HAProxy Backend server pool | Jellyfin Value | Sonarr Value | Radarr Value | Nzbget Value | Deluge Value
 | :--- | :--- | :--- | :--- | :--- | :---
-| Name | `jellyfin-site1.foo.bar` | `sonarr-site1.foo.bar` | `radarr-site1.foo.bar` | `sabnzbd-site1.foo.bar` | `deluge-site1.foo.bar` 
+| Name | `jellyfin-site1.foo.bar` | `sonarr-site1.foo.bar` | `radarr-site1.foo.bar` | `nzbget-site1.foo.bar` | `deluge-site1.foo.bar` 
 | Server list
 | Table-Mode | `active` | `active` | `active` | `active` | `active` 
-| Table-Name | `jellyfin` | `sonarr` | `radarr` | `sabnzbd` | `deluge`
+| Table-Name | `jellyfin` | `sonarr` | `radarr` | `nzbget` | `deluge`
 | Table-Forwardto | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port`
 | Table-Address | `192.168.50.111` | `192.168.50.112` | `192.168.50.113` | `192.168.50.114` | `192.168.50.115`
 | Table-Port | `8096` | `8989` | `7878` | `8080` | `8112`
