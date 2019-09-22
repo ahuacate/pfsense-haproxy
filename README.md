@@ -52,7 +52,7 @@ First login to your Cloudfare Dashboard Home, choose your domain and go to `DNS 
 | `A` | `jellyfin-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` | *Note, Uncheck the cloudfare orange cloud. Also the IP address 0.0.0.0 will be updated by your pfSense DDNS service.*
 | `A` | `radarr-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
 | `A` | `sonarr-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
-| `A` | `sabnzbd-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
+| `A` | `nzbget-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
 | `A` | `deluge-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
 | `A` | `vpn-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
 
@@ -112,7 +112,7 @@ In the pfSense WebGUI go to `System` > `Package Manager` > `Available Packages T
 ### 4.1 ACME General Settings
 In the pfSense WebGUI go to `Service` > `ACME` > `Settings` and fill out the necessary fields as follows:
 
-| General Settings Tab | Value | Notes
+| General Settings Tab | Value 
 | :--- | :---
 | Cron Entry | `☑ Enable Acme client renewal job` 
 | Write Certificates | Leave Blank
