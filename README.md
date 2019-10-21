@@ -89,7 +89,7 @@ We need to configure pfSense to send the DynamicDNS infornmation to Cloudflare. 
 | **jellyfin-site1.foo.bar**
 | Disable | `☐` Disable this client |*Uncheck*
 | Service Type | `Cloudfare`
-| Interface to monitor | `WAN`
+| Interface to monitor | `LAN`
 | Hostname | `jellyfin-site1` | *Replace site1 with your location i.e home, mancave, beachhouse*
 | Domain | `foo.bar` | *Replace with your domain name.*
 | MX | Leave Blank
