@@ -544,6 +544,64 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
+### 9.7 Ombi authentication Frontend
+In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
+
+| Edit HAProxy Frontend | Value
+| :--- | :---
+| Name | `ombi-site1.foo.bar`
+| Description | `Ombi authenticated frontend`
+| Status `Active`
+| Shared Frontend | `☑`
+| Primary frontend | `shared-frontend - http`
+| **Default backend, access control lists and actions**
+| **Access Control lists**
+| Table-Name | `ombi-acl`
+| Table-Expresssion | `Host matches:`
+| Table-CS | `☐`
+| Table-Not | `☐`
+| Table-Value| `ombi-site1.foo.bar`
+| **Actions**
+| Table-Action | `Use Backend`
+| Table-Parameters | Leave blank
+| Table-Conditions acl names | `ombi-acl`
+| Default Backend | `None`
+| **Error files**
+| Error files | Leave blank
+| **SSL Offloading**
+| Use offloading | `☐ Specify additional certificates for this shared-frontend`
+
+And click `Save`.
+
+### 9.8 Syncthing authentication Frontend
+In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
+
+| Edit HAProxy Frontend | Value
+| :--- | :---
+| Name | `syncthing-site1.foo.bar`
+| Description | `Syncthing authenticated frontend`
+| Status `Active`
+| Shared Frontend | `☑`
+| Primary frontend | `shared-frontend - http`
+| **Default backend, access control lists and actions**
+| **Access Control lists**
+| Table-Name | `syncthing-acl`
+| Table-Expresssion | `Host matches:`
+| Table-CS | `☐`
+| Table-Not | `☐`
+| Table-Value| `syncthing-site1.foo.bar`
+| **Actions**
+| Table-Action | `Use Backend`
+| Table-Parameters | Leave blank
+| Table-Conditions acl names | `syncthing-acl`
+| Default Backend | `None`
+| **Error files**
+| Error files | Leave blank
+| **SSL Offloading**
+| Use offloading | `☐ Specify additional certificates for this shared-frontend`
+
+And click `Save`.
+
 ## 10.0 HAProxy Backend Settings
 HAProxy backend section defines a group of servers that will be assigned to handle requests. A backend server responds to incoming requests if a given condition is true.
 
@@ -600,15 +658,15 @@ And click `Save`.
 
 Repeat for all your backend servers. To make life easy you can click the `Copy` icon under `Actions` to duplicate your first backend entry (i.e jellyfin-site1.foo.bar). Then edit the copied entry/duplicate changing the following particulars to meet other server needs:
 
-| Edit HAProxy Backend server pool | Jellyfin Value | Sonarr Value | Radarr Value | Nzbget Value | Deluge Value
-| :--- | :--- | :--- | :--- | :--- | :---
-| Name | `jellyfin-site1.foo.bar` | `sonarr-site1.foo.bar` | `radarr-site1.foo.bar` | `nzbget-site1.foo.bar` | `deluge-site1.foo.bar` 
+| Edit HAProxy Backend server pool | Jellyfin Value | Sonarr Value | Radarr Value | Nzbget Value | Deluge Value | Ombi Value | Syncthing Value
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :---
+| Name | `jellyfin-site1.foo.bar` | `sonarr-site1.foo.bar` | `radarr-site1.foo.bar` | `nzbget-site1.foo.bar` | `deluge-site1.foo.bar` | `ombi-site1.foo.bar` | `syncthing-site1.foo.bar`
 | Server list
-| Table-Mode | `active` | `active` | `active` | `active` | `active` 
-| Table-Name | `jellyfin` | `sonarr` | `radarr` | `nzbget` | `deluge`
-| Table-Forwardto | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port`
-| Table-Address | `192.168.50.111` | `192.168.50.112` | `192.168.50.113` | `192.168.50.114` | `192.168.50.115`
-| Table-Port | `8096` | `8989` | `7878` | `8080` | `8112`
+| Table-Mode | `active` | `active` | `active` | `active` | `active` | `active` | `active` 
+| Table-Name | `jellyfin` | `sonarr` | `radarr` | `nzbget` | `deluge` | `ombi` | `syncthing`
+| Table-Forwardto | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port`
+| Table-Address | `192.168.50.111` | `192.168.50.112` | `192.168.50.113` | `192.168.50.114` | `192.168.50.115` | `192.168.50.119` | `192.168.50.122`
+| Table-Port | `8096` | `8989` | `7878` | `8080` | `8112`| `5000` | `8384`
 | Remaining fields are common
 
 And click `Save`.
