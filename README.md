@@ -20,17 +20,18 @@ Other Prerequisites are:
 - [x] You own a registered Domain name
 
 Tasks to be performed are:
-- [ ] 1.0 Create a Cloudfare Acccount
-- [ ] 2.0 Configure your domains at Cloudfare
-- [ ] 3.0 pfSense Dynamic DNS
-- [ ] 4.0 Install ACME on pfSense
-- [ ] 5.0 Generate ACME Certificates
-- [ ] 6.0 Install HAProxy
-- [ ] 7.0 Edit your UniFi network firewall
-- [ ] 8.0 HAProxy Settings
-- [ ] 9.0 HAProxy Frontend Settings
-- [ ] 10.0 HAProxy Backend Settings
-- [ ] 11.0 Fix for pfSense Dynamic DNS
+- [ ] 1.00 Create a Cloudfare Acccount
+- [ ] 2.00 Configure your domains at Cloudfare
+- [ ] 3.00 pfSense Dynamic DNS
+- [ ] 4.00 Install ACME on pfSense
+- [ ] 5.00 Generate ACME Certificates
+- [ ] 6.00 Install HAProxy
+- [ ] 7.00 Edit your UniFi network firewall
+- [ ] 8.00 HAProxy Settings
+- [ ] 9.00 HAProxy Backend Settings
+- [ ] 10.00 HAProxy Backend Settings
+- [ ] 11.00 Fix for pfSense Dynamic DNS
+- [ ] 00.00 Patches & Fixes
 
 ## 1.00 Create a Cloudfare Acccount
 I recommend you redirect your domain DNS Names Servers to Cloudfare. Not only are Cloudfare DNS servers fast, they also have an API Key for configuring your DNS records automatically and provide a **free Dynamic DNS service**. If you want to use Cloudfare DNS name servers you can create a free account at Cloudfare.
