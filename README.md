@@ -32,19 +32,19 @@ Tasks to be performed are:
 - [ ] 10.0 HAProxy Backend Settings
 - [ ] 11.0 Fix for pfSense Dynamic DNS
 
-## 1.0 Create a Cloudfare Acccount
+## 1.00 Create a Cloudfare Acccount
 I recommend you redirect your domain DNS Names Servers to Cloudfare. Not only are Cloudfare DNS servers fast, they also have an API Key for configuring your DNS records automatically and provide a **free Dynamic DNS service**. If you want to use Cloudfare DNS name servers you can create a free account at Cloudfare.
 
 There are plenty of tutorials about how to move your DNS services from Google, Godaddy and other providers to Cloudfare on the internet.
 
 This tutorial will refer to Cloudfare DNS management from now on.
 
-## 2.0 Configure your domains at Cloudfare
+## 2.00 Configure your domains at Cloudfare
 First you must decide on your subdomain names. It’s part of the address used to direct traffic to a particular service running on your sites servers. 
 
 For example, **jellyfin-`site1`.foo.bar** or **jellyfin-`site2`.foo.bar** where **`site1`** and **`site2`** are two different locations (i.e cities) in the world.
 
-### 2.1 Create DNS A records for your servers
+### 2.01 Create DNS A records for your servers
 First login to your Cloudfare Dashboard Home, choose your domain and go to `DNS TAB`. You will be provided with a page to `Manage your Domain NAme System (DNS) settings`. Using the Cloudfare web interface create the following form entries by clicking `Add Record` after completing each each entry:
 
 | Type | Name | IPv4 address | Automatic TTL | Orange Cloud | Notes
@@ -58,7 +58,7 @@ First login to your Cloudfare Dashboard Home, choose your domain and go to `DNS 
 | `A` | `syncthing-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
 | `A` | `vpn-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
 
-### 2.2 Cloudfare Crypto
+### 2.02 Cloudfare Crypto
 Using your Cloudfare Dashboard Home, choose your domain and go to `Crypto TAB`. Using the Cloudfare web interface edit the following form entries to match the table below:
 
 | Crpto | Value | Notes
@@ -77,13 +77,13 @@ Using your Cloudfare Dashboard Home, choose your domain and go to `Crypto TAB`. 
 | Automatic HTTPS Rewrites | `Off`
 | Disable Universal SSL | Leave Default
 
-## 3.0 pfSense Dynamic DNS
+## 3.00 pfSense Dynamic DNS
 Cloudfare provides you with a API key (called the Global API Key)which gives pfSense the rights to update your domains DNS information. So have your Cloudfare Global API key ready by:
 *  Log in to Cloudflare Account and go to your Profile;
 *  Scroll down and View your **Global API Key**;
 *  Complete the password challenge and note your key.
 
-### 3.1 Create pfSense Dynamic DNS entries
+### 3.01 Create pfSense Dynamic DNS entries
 We need to configure pfSense to send the DynamicDNS infornmation to Cloudflare. In the pfSense WebGUI go to `Services` > `Dynamic DNS` > `Dynamic DNS Clients`. Click `Add` and fill out the necessary fields as follows:
 
 | Dynamic DNS Client | Value | Notes
@@ -106,12 +106,12 @@ And click `Save & Force Update`. Now repeat the above steps for all your Cloudfa
 
 Then check your Cloudfare DNS A-records your created [HERE](https://github.com/ahuacate/proxmox-reverseproxy/blob/master/README.md#21-create-dns-a-records-for-your-servers) and all your servers IP values should change from 0.0.0.0 to your WAN IP address.
 
-## 4.0 Install ACME on pfSense
+## 4.00 Install ACME on pfSense
 We need to install the ACME package on your pfSense. ACME is Automated Certificate Management Environment, for automated use of LetsEncrypt certificates.
 
 In the pfSense WebGUI go to `System` > `Package Manager` > `Available Packages Tab` and search for `ACME`. Install the `ACME` package.
 
-### 4.1 ACME General Settings
+### 4.01 ACME General Settings
 In the pfSense WebGUI go to `Service` > `ACME` > `Settings` and fill out the necessary fields as follows:
 
 | General Settings Tab | Value 
@@ -119,12 +119,12 @@ In the pfSense WebGUI go to `Service` > `ACME` > `Settings` and fill out the nec
 | Cron Entry | `☑ Enable Acme client renewal job` 
 | Write Certificates | Leave Blank
 
-## 5.0 Generate ACME Certificates
+## 5.00 Generate ACME Certificates
 We will need to generate certificates from a trusted provider such as Let’s Encrypt.
 
 We can use the ACME Package provided in pfSense.
 
-### 5.1 Create ACME Account Keys
+### 5.01 Create ACME Account Keys
 First you need to create some account keys. LetsEncrypt is rate limited so you want to make sure that you have everything configured correctly before requesting a real cert. To help people test, LetsEncrypt provides a test service that you can use as you figure out your settings without bumping into the rate limit on the production servers. Certs obtained from these test services cannot be used.
 
 So we will create two Account Keys.
@@ -156,7 +156,7 @@ Then click the `Register ACME Account key`. The little cog will spin and if it w
 
 Finally click `Save`.
 
-### 5.2 Create ACME Certificates
+### 5.02 Create ACME Certificates
 In the pfSense WebGUI go to `Services` > `Acme Certificates` > `Certificates`. Click `Add` and fill out the necessary fields as follows. Notice I have multiple entries in the Domain SAN List. This means the same certificate will be used for each server connection. In this example we will get a certificate that covers `jellyfin-site1`, `radarr-site1`, `sonarr-site1`, `nzbget-site1` and `deluge-site1` - basically all your media server connections.
 
 | Edit Certificate options | Value
@@ -283,12 +283,12 @@ Once you're satisfied everything is configured correctly, edit the certificate a
 Final validation of your newly created LetsEncrypt certificate can be done by going to `System` > `Certificate Manager` > `Certificates`. It will show the issuer as something like **“Acmecert: 0=Let’s Encrypt,CN=Let’s Encrypt Authority X3,C=US”**.
 
 
-## 6.0 Install HAProxy
+## 6.00 Install HAProxy
 We need to install the HAProxy package on your pfSense.
 
 In the pfSense WebGUI go to `System` > `Package Manager` > `Available Packages Tab` and search for `HAProxy`. Install `haproxy` package.
 
-## 7.0 Edit your UniFi network firewall
+## 7.00 Edit your UniFi network firewall
 You should've already done this task if you followed these [instructions](https://github.com/ahuacate/proxmox-node/blob/master/README.md#25-edit-your-unifi-network-firewall). If not here they are again.
 
 On your Proxmox Qotom build (typhoon-01) NIC ports enp3s0 & enp4s0 are bonded to create LAG `bond1`. You will then create in Proxmox a Linux Bridge using `bond1` called `vmbr2`. When you install pfSense VM on typhoon-01 the pfSense and HAProxy software will assign `vmbr2` (bond1) as its WAN interface NIC.
@@ -311,7 +311,7 @@ And click `Apply Changes`.
 
 As you've probably concluded you must add any new HAProxy backend server IPv4 address(s) to the Unifi Pre-Authorization Access list for HAProxy frontend to have access to those backend VLAN50 servers.
 
-## 8.0 HAProxy General Settings
+## 8.00 HAProxy General Settings
 In the pfSense WebGUI go to `Service` > `ACME` > `Settings` and fill out the necessary fields as follows:
 
 | Settings Tab | Value 
@@ -352,12 +352,12 @@ In the pfSense WebGUI go to `Service` > `ACME` > `Settings` and fill out the nec
 
 And click `Save`.
 
-## 9.0 HAProxy Frontend Settings
+## 9.00 HAProxy Frontend Settings
 All of the connection requests will be coming in to the same IP address and port but we need a way to distinguish between requests so that those for jellyfin-site1.foo.bar go to the jellyfin backend and those for sonarr-site1.foo.bar go to the sonarr backend.
 
 So we will create a shared front end and then sub front ends for each subdomain.
 
-### 9.1 Shared Frontend
+### 9.01 Shared Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value 
@@ -411,7 +411,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 9.2 Jellyfin authentication Frontend
+### 9.02 Jellyfin authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
@@ -440,7 +440,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 9.3 Sonarr authentication Frontend
+### 9.03 Sonarr authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
@@ -469,7 +469,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 9.4 Radarr authentication Frontend
+### 9.04 Radarr authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
@@ -498,7 +498,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 9.5 Nzbget authentication Frontend
+### 9.05 Nzbget authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
@@ -527,7 +527,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 9.6 Deluge authentication Frontend
+### 9.06 Deluge authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
@@ -556,7 +556,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 9.7 Ombi authentication Frontend
+### 9.07 Ombi authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
@@ -585,7 +585,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 9.8 Syncthing authentication Frontend
+### 9.08 Syncthing authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
@@ -614,10 +614,10 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-## 10.0 HAProxy Backend Settings
+## 10.00 HAProxy Backend Settings
 HAProxy backend section defines a group of servers that will be assigned to handle requests. A backend server responds to incoming requests if a given condition is true.
 
-### 10.1 Jellyfin Backend
+### 10.01 Jellyfin Backend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Backend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Backend server pool | Value
@@ -683,7 +683,7 @@ Repeat for all your backend servers. To make life easy you can click the `Copy` 
 
 And click `Save`.
 
-## 11.0 Fix for pfSense Dynamic DNS
+## 11.00 Fix for pfSense Dynamic DNS
 If your ISP frequently changes your WAN IP you may run into problems with out of date Cloudfare A-records pointing to an out of date IP address.
 
 It appears updates may take place if the WAN interface IP address changes, but not if the pfSense device is behind a router, gateway or firewall.
@@ -692,10 +692,10 @@ You will know if you have problem when you cannot remotely access your server no
 
 The work around is to install a CRON manager.
 
-### 11.1 Install a Cron Manager
+### 11.01 Install a Cron Manager
 In the pfSense WebGUI go to `System` > `Package Manager` > `Available Packages Tab` and search for `Cron`. Install the `Cron` package.
 
-### 11.2 Configure your Dynamic DNS Cron Schedule
+### 11.02 Configure your Dynamic DNS Cron Schedule
 In the pfSense WebGUI go to `Services` > `Cron` > `Settings Tab` and click on the pencil for entry with `rc.dyndns.update` in its command name.  Edit the necessary fields as follows:
 
 | Add A Cron Schedule | Value
