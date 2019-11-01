@@ -102,7 +102,7 @@ We need to configure pfSense to send the DynamicDNS infornmation to Cloudflare. 
 | Password | Enter your Global API Key | *See section 3.0*
 | Description | `jellyfin-site1.foo.bar`
 
-And click `Save & Force Update`. Now repeat the above steps for all your Cloudfare DNS A-record entries and servers (i.e `radarr-site1`, `sonarr-site1`, `nzbget-site1`, `deluge-site1`, `vpn-site1` etc)
+And click `Save & Force Update`. Now repeat the above steps for all your Cloudfare DNS A-record entries and servers (i.e `radarr-site1`, `sonarr-site1`, `nzbget-site1`, `deluge-site1`, `ombi-site1`, `syncthing-site1`, `vpn-site1` etc)
 
 Then check your Cloudfare DNS A-records your created [HERE](https://github.com/ahuacate/proxmox-reverseproxy/blob/master/README.md#21-create-dns-a-records-for-your-servers) and all your servers IP values should change from 0.0.0.0 to your WAN IP address.
 
@@ -352,12 +352,83 @@ In the pfSense WebGUI go to `Service` > `ACME` > `Settings` and fill out the nec
 
 And click `Save`.
 
-## 9.00 HAProxy Frontend Settings
+## 9.00 HAProxy Backend Settings
+HAProxy backend section defines a group of servers that will be assigned to handle requests. A backend server responds to incoming requests if a given condition is true.
+
+### 9.01 Jellyfin Backend
+In the pfSense WebGUI go to `Service` > `HAProxy` > `Backend Tab` and click `Add` and fill out the necessary fields as follows:
+
+| Edit HAProxy Backend server pool | Value
+| :--- | :---
+| Name | `jellyfin-site1.foo.bar`
+| Server list
+| Table-Mode | `active`
+| Table-Name | `jellyfin`
+| Table-Forwardto | `Address+Port`
+| Table-Address | `192.168.50.111`
+| Table-Port | `8096`
+| Table-Encrypt(SSL) | `☐`
+| Table-SSL checks | `☐`
+| Table-Weight | Leave blank
+| **Loadbalancing options (when multiple servers are defined)**
+| Balance | `☑ None`
+| **Access control lists and actions**
+| Access Control lists | Leave blank
+| Actions | Leave blank
+| **Timeout / retry settings**
+| Connection timeout | Leave blank
+| Server timeout | Leave blank
+| Retries | Leave blank
+| **Health checking**
+| Health check method | `Basic`
+| Check frequency | Leave blank
+| Log checks | `☑ When this option is enabled, any change of the health check status or to the server's health will be logged.`
+| **Agent checks**
+| Agent checks | `☐ Use agent checks`
+| **Cookie persistence**
+| Cookie Enabled | `☐ Enables cookie based persistence. (only used on "http" frontends)`
+| **Stick-table persistence**
+| Stick tables | `none`
+| **Email notifications**
+| Mail level | `Default level from global`
+| Mail to | Leave blank
+| **Statistics**
+| Stats Enabled | `☐ Enables the haproxy statistics page (only used on "http" frontends)`
+| **Error files**
+| Error files | Leave blank
+| **HSTS / Cookie protection**
+| HSTS Strict-Transport-Security | Leave blank
+| Cookie protection | `☐ Set "secure" attribure on cookies (only used on "http" frontends)`
+| **Advanced settings**
+| Per server pass thru | Leave blank
+| Backend pass thru | Leave blank
+| Transparent ClientIP | `☐  Use Client-IP to connect to backend servers`
+
+And click `Save`.
+
+Repeat for all your backend servers. To make life easy you can click the `Copy` icon under `Actions` to duplicate your first backend entry (i.e jellyfin-site1.foo.bar). Then edit the copied entry/duplicate changing the following particulars (note, change `Health check method` to `HTTP` for most) to meet other backend server needs:
+
+| Edit HAProxy Backend server pool | Jellyfin Value | Sonarr Value | Radarr Value | Nzbget Value | Deluge Value | Ombi Value | Syncthing Value
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :---
+| Name | `jellyfin-site1.foo.bar` | `sonarr-site1.foo.bar` | `radarr-site1.foo.bar` | `nzbget-site1.foo.bar` | `deluge-site1.foo.bar` | `ombi-site1.foo.bar` | `syncthing-site1.foo.bar`
+| **Server list**
+| Table-Mode | `active` | `active` | `active` | `active` | `active` | `active` | `active` 
+| Table-Name | `jellyfin` | `sonarr` | `radarr` | `nzbget` | `deluge` | `ombi` | `syncthing`
+| Table-Forwardto | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port`
+| Table-Address | `192.168.50.111` | `192.168.50.112` | `192.168.50.113` | `192.168.50.114` | `192.168.50.115` | `192.168.50.119` | `192.168.50.122`
+| Table-Port | `8096` | `8989` | `7878` | `8080` | `8112`| `5000` | `8384`
+| **Health checking**
+| Health check method | `Basic` | `HTTP` | `HTTP` | `HTTP` | `HTTP` | `HTTP` | `HTTP` |
+| Remaining fields are common
+
+And click `Save`.
+
+## 10.00 HAProxy Frontend Settings
 All of the connection requests will be coming in to the same IP address and port but we need a way to distinguish between requests so that those for jellyfin-site1.foo.bar go to the jellyfin backend and those for sonarr-site1.foo.bar go to the sonarr backend.
 
 So we will create a shared front end and then sub front ends for each subdomain.
 
-### 9.01 Shared Frontend
+### 10.01 Shared Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value 
@@ -411,7 +482,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 9.02 Jellyfin authentication Frontend
+### 10.02 Jellyfin authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
@@ -440,7 +511,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 9.03 Sonarr authentication Frontend
+### 10.03 Sonarr authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
@@ -469,7 +540,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 9.04 Radarr authentication Frontend
+### 10.04 Radarr authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
@@ -498,7 +569,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 9.05 Nzbget authentication Frontend
+### 10.05 Nzbget authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
@@ -527,7 +598,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 9.06 Deluge authentication Frontend
+### 10.06 Deluge authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
@@ -556,7 +627,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 9.07 Ombi authentication Frontend
+### 10.07 Ombi authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
@@ -585,7 +656,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 
 And click `Save`.
 
-### 9.08 Syncthing authentication Frontend
+### 10.08 Syncthing authentication Frontend
 In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Add` and fill out the necessary fields as follows:
 
 | Edit HAProxy Frontend | Value
@@ -611,75 +682,6 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 | Error files | Leave blank
 | **SSL Offloading**
 | Use offloading | `☐ Specify additional certificates for this shared-frontend`
-
-And click `Save`.
-
-## 10.00 HAProxy Backend Settings
-HAProxy backend section defines a group of servers that will be assigned to handle requests. A backend server responds to incoming requests if a given condition is true.
-
-### 10.01 Jellyfin Backend
-In the pfSense WebGUI go to `Service` > `HAProxy` > `Backend Tab` and click `Add` and fill out the necessary fields as follows:
-
-| Edit HAProxy Backend server pool | Value
-| :--- | :---
-| Name | `jellyfin-site1.foo.bar`
-| Server list
-| Table-Mode | `active`
-| Table-Name | `jellyfin`
-| Table-Forwardto | `Address+Port`
-| Table-Address | `192.168.50.111`
-| Table-Port | `8096`
-| Table-Encrypt(SSL) | `☐`
-| Table-SSL checks | `☐`
-| Table-Weight | Leave blank
-| **Loadbalancing options (when multiple servers are defined)**
-| Balance | `☑ None`
-| **Access control lists and actions**
-| Access Control lists | Leave blank
-| Actions | Leave blank
-| **Timeout / retry settings**
-| Connection timeout | Leave blank
-| Server timeout | Leave blank
-| Retries | Leave blank
-| **Health checking**
-| Health check method | `Basic`
-| Check frequency | Leave blank
-| Log checks | `☑ When this option is enabled, any change of the health check status or to the server's health will be logged.`
-| **Agent checks**
-| Agent checks | `☐ Use agent checks`
-| **Cookie persistence**
-| Cookie Enabled | `☐ Enables cookie based persistence. (only used on "http" frontends)`
-| **Stick-table persistence**
-| Stick tables | `none`
-| **Email notifications**
-| Mail level | `Default level from global`
-| Mail to | Leave blank
-| **Statistics**
-| Stats Enabled | `☐ Enables the haproxy statistics page (only used on "http" frontends)`
-| **Error files**
-| Error files | Leave blank
-| **HSTS / Cookie protection**
-| HSTS Strict-Transport-Security | Leave blank
-| Cookie protection | `☐ Set "secure" attribure on cookies (only used on "http" frontends)`
-| **Advanced settings**
-| Per server pass thru | Leave blank
-| Backend pass thru | Leave blank
-| Transparent ClientIP | `☐  Use Client-IP to connect to backend servers`
-
-And click `Save`.
-
-Repeat for all your backend servers. To make life easy you can click the `Copy` icon under `Actions` to duplicate your first backend entry (i.e jellyfin-site1.foo.bar). Then edit the copied entry/duplicate changing the following particulars to meet other server needs:
-
-| Edit HAProxy Backend server pool | Jellyfin Value | Sonarr Value | Radarr Value | Nzbget Value | Deluge Value | Ombi Value | Syncthing Value
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :---
-| Name | `jellyfin-site1.foo.bar` | `sonarr-site1.foo.bar` | `radarr-site1.foo.bar` | `nzbget-site1.foo.bar` | `deluge-site1.foo.bar` | `ombi-site1.foo.bar` | `syncthing-site1.foo.bar`
-| Server list
-| Table-Mode | `active` | `active` | `active` | `active` | `active` | `active` | `active` 
-| Table-Name | `jellyfin` | `sonarr` | `radarr` | `nzbget` | `deluge` | `ombi` | `syncthing`
-| Table-Forwardto | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port`
-| Table-Address | `192.168.50.111` | `192.168.50.112` | `192.168.50.113` | `192.168.50.114` | `192.168.50.115` | `192.168.50.119` | `192.168.50.122`
-| Table-Port | `8096` | `8989` | `7878` | `8080` | `8112`| `5000` | `8384`
-| Remaining fields are common
 
 And click `Save`.
 
@@ -712,8 +714,10 @@ And click `Save`.
 
 This will force pfsense tocheck for WAN IP changes every 5 minutes.
 
+---
+
 ## 00.00 Patches & Fixes
-Tweaks and fixes to make broken things work - sometimes.
+Tweaks and fixes to make broken things work - sometimes :)
 
 ### 00.10 pfSense Dynanic DNS Cloudflare with proxy enabled doesn't work at all
 Fix for log errors like this:
