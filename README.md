@@ -54,6 +54,8 @@ First login to your Cloudfare Dashboard Home, choose your domain and go to `DNS 
 | `A` | `sonarr-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
 | `A` | `nzbget-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
 | `A` | `deluge-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
+| `A` | `ombi-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
+| `A` | `syncthing-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
 | `A` | `vpn-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
 
 ### 2.2 Cloudfare Crypto
@@ -194,7 +196,7 @@ In the pfSense WebGUI go to `Services` > `Acme Certificates` > `Certificates`. C
 | Enable DNS domain alias mode | `☐ (Optional) Uses the challenge domain alias value as --domain-alias instead in the acme.sh call`
 | **Entry 4 - Domain SAN list**
 | Mode |`Enabled`
-| Domainname `radarr-site1.foo.bar` | *One entry per Cloudfare DNS A-record*
+| Domainname `nzbget-site1.foo.bar` | *One entry per Cloudfare DNS A-record*
 | Method | `DNS-Cloudflare`
 | Mode | `Enabled`
 | Key | Fill in the Cloudfare Global API Key
@@ -203,7 +205,7 @@ In the pfSense WebGUI go to `Services` > `Acme Certificates` > `Certificates`. C
 | Enable DNS domain alias mode | `☐ (Optional) Uses the challenge domain alias value as --domain-alias instead in the acme.sh call`
 | **Entry 5 - Domain SAN list**
 | Mode |`Enabled`
-| Domainname `nzbget-site1.foo.bar` | *One entry per Cloudfare DNS A-record*
+| Domainname `deluge-site1.foo.bar` | *One entry per Cloudfare DNS A-record*
 | Method | `DNS-Cloudflare`
 | Mode | `Enabled`
 | Key | Fill in the Cloudfare Global API Key
@@ -212,17 +214,27 @@ In the pfSense WebGUI go to `Services` > `Acme Certificates` > `Certificates`. C
 | Enable DNS domain alias mode | `☐ (Optional) Uses the challenge domain alias value as --domain-alias instead in the acme.sh call`
 | **Entry 6 - Domain SAN list**
 | Mode |`Enabled`
-| Domainname `deluge-site1.foo.bar` | *One entry per Cloudfare DNS A-record*
+| Domainname `ombi-site1.foo.bar` | *One entry per Cloudfare DNS A-record*
 | Method | `DNS-Cloudflare`
 | Mode | `Enabled`
 | Key | Fill in the Cloudfare Global API Key
 | Email | Enter your email address
 | Enable DNS alias mode | Leave Blank
 | Enable DNS domain alias mode | `☐ (Optional) Uses the challenge domain alias value as --domain-alias instead in the acme.sh call`
+| **Entry 7 - Domain SAN list**
+| Mode |`Enabled`
+| Domainname `syncthing-site1.foo.bar` | *One entry per Cloudfare DNS A-record*
+| Method | `DNS-Cloudflare`
+| Mode | `Enabled`
+| Key | Fill in the Cloudfare Global API Key
+| Email | Enter your email address
+| Enable DNS alias mode | Leave Blank
+| Enable DNS domain alias mode | `☐ (Optional) Uses the challenge domain alias value as --domain-alias instead in the acme.sh call`
+| **Remaining fields**
 | DNS Sleep | Leave Blank
 | Action List `Add` | `/etc/rc.restart_webgui`
 | Last renewal | Leave Blank
-| Certificate renewal after | `90`
+| Certificate renewal after | `60`
 
 Then click `Save`  followed by `Issue/Renew`. A review of the output will appear on the page and if successful you see a RSA key has been generated. The output should begin like this:
 
