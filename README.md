@@ -1,4 +1,4 @@
-# HAProxy in pfSense
+# pfSense - HAProxy
 A reverse proxy server is a type of proxy server that typically sits behind a firewall in a private network and directs client requests to the appropriate backend server. A reverse proxy provides an additional level of abstraction and control to ensure the smooth flow of network traffic between clients and servers.
 
 If you want a convenient remote internet access to your LXC's and/or Apps within your network the easiest way is to setup HAProxy which is addon in pfSense.
