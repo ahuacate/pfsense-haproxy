@@ -20,18 +20,37 @@ Other Prerequisites are:
 - [x] You own a registered Domain name
 
 Tasks to be performed are:
-- [ ] 1.00 Create a Cloudfare Acccount
-- [ ] 2.00 Configure your domains at Cloudfare
-- [ ] 3.00 pfSense Dynamic DNS
-- [ ] 4.00 Install ACME on pfSense
-- [ ] 5.00 Generate ACME Certificates
-- [ ] 6.00 Install HAProxy
-- [ ] 7.00 Edit your UniFi network firewall
-- [ ] 8.00 HAProxy Settings
-- [ ] 9.00 HAProxy Backend Settings
-- [ ] 10.00 HAProxy Backend Settings
-- [ ] 11.00 Fix for pfSense Dynamic DNS
-- [ ] 00.00 Patches & Fixes
+- [1.00 Create a Cloudfare Acccount](#100-create-a-cloudfare-acccount)
+- [2.00 Configure your domains at Cloudfare](#200-configure-your-domains-at-cloudfare)
+	- [2.01 Create DNS A records for your servers](#201-create-dns-a-records-for-your-servers)
+	- [2.02 Cloudfare Crypto](#202-cloudfare-crypto)
+- [3.00 pfSense Dynamic DNS](#300-pfsense-dynamic-dns)
+	- [3.01 Create pfSense Dynamic DNS entries](#301-create-pfsense-dynamic-dns-entries)
+- [4.00 Install ACME on pfSense](#400-install-acme-on-pfsense)
+	- [4.01 ACME General Settings](#401-acme-general-settings)
+- [5.00 Generate ACME Certificates](#500-generate-acme-certificates)
+	- [5.01 Create ACME Account Keys](#501-create-acme-account-keys)
+	- [5.02 Create ACME Certificates](#502-create-acme-certificates)
+- [6.00 Install HAProxy](#600-install-haproxy)
+- [7.00 Edit your UniFi network firewall](#700-edit-your-unifi-network-firewall)
+- [8.00 HAProxy General Settings](#800-haproxy-general-settings)
+- [9.00 HAProxy Backend Settings](#900-haproxy-backend-settings)
+	- [9.01 Jellyfin Backend](#901-jellyfin-backend)
+- [10.00 HAProxy Frontend Settings](#1000-haproxy-frontend-settings)
+	- [10.01 Shared Frontend](#1001-shared-frontend)
+	- [10.02 Jellyfin authentication Frontend](#1002-jellyfin-authentication-frontend)
+	- [10.03 Sonarr authentication Frontend](#1003-sonarr-authentication-frontend)
+	- [10.04 Radarr authentication Frontend](#1004-radarr-authentication-frontend)
+	- [10.05 Nzbget authentication Frontend](#1005-nzbget-authentication-frontend)
+	- [10.06 Deluge authentication Frontend](#1006-deluge-authentication-frontend)
+	- [10.07 Ombi authentication Frontend](#1007-ombi-authentication-frontend)
+	- [10.08 Syncthing authentication Frontend](#1008-syncthing-authentication-frontend)
+- [11.00 Fix for pfSense Dynamic DNS](#1100-fix-for-pfsense-dynamic-dns)
+	- [11.01 Install a Cron Manager](#1101-install-a-cron-manager)
+	- [11.02 Configure your Dynamic DNS Cron Schedule](#1102-configure-your-dynamic-dns-cron-schedule)
+- [00.00 Patches & Fixes](#0000-patches--fixes)
+	- [00.10 pfSense Dynanic DNS Cloudflare with proxy enabled doesn't work at all](#0010-pfsense-dynanic-dns-cloudflare-with-proxy-enabled-doesnt-work-at-all)
+
 
 ## 1.00 Create a Cloudfare Acccount
 I recommend you redirect your domain DNS Names Servers to Cloudfare. Not only are Cloudfare DNS servers fast, they also have an API Key for configuring your DNS records automatically and provide a **free Dynamic DNS service**. If you want to use Cloudfare DNS name servers you can create a free account at Cloudfare.
