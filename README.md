@@ -486,7 +486,7 @@ Repeat for all your backend servers. To make life easy you can click the `Copy` 
 | Health check method | `Basic` | `HTTP` | `HTTP` | `HTTP` | `HTTP` | `HTTP` | `HTTP` |
 | Remaining fields are common
 
-And click `Save`.
+And click `Save` and `Apply Settings`.
 
 ## 10.00 HAProxy Frontend Settings
 All of the connection requests will be coming in to the same IP address and port but we need a way to distinguish between requests so that those for jellyfin-site1.foo.bar go to the jellyfin backend and those for sonarr-site1.foo.bar go to the sonarr backend.
