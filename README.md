@@ -327,8 +327,8 @@ The below instructions are for a UniFi controller `Settings` > `Guest Control`  
 | + Add IPv4 Hostname or subnet | Value | Notes
 | :---  | :---: | :---
 | IPv4 | 192.168.50.111 | *Jellyfin Server*
-| IPv4 | 192.168.50.112 | *Nzbget Server*
-| IPv4 | 192.168.50.113 | *Deluge Server*
+| IPv4 | 192.168.30.112 | *Nzbget Server*
+| IPv4 | 192.168.30.113 | *Deluge Server*
 | IPv4 | 192.168.50.114 | *flexget Server*
 | IPv4 | 192.168.50.115 | *Sonarr Server*
 | IPv4 | 192.168.50.116 | *RadarrServer*
