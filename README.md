@@ -145,7 +145,7 @@ We will need to generate certificates from a trusted provider such as Let’s En
 We can use the ACME Package provided in pfSense.
 
 ### 5.01 Create ACME Account Keys
-First you need to create some account keys. LetsEncrypt is rate limited so you want to make sure that you have everything configured correctly before requesting a real cert. To help people test, LetsEncrypt provides a test service that you can use as you figure out your settings without bumping into the rate limit on the production servers. Certs obtained from these test services cannot be used.
+First you need to create some account keys. LetsEncrypt is rate limited so you want to make sure that you have everything configured correctly before requesting a real cert. To help people test, LetsEncrypt provides a test service that you can use as you figure out your settings without bumping into the rate limit on the production servers. Certs obtained from these test services cannot be used. You simply change the Cert from test to production and Issue/Renew again for a full working Cert.
 
 So we will create two Account Keys.
 
@@ -308,12 +308,15 @@ We need to install the HAProxy package on your pfSense.
 
 In the pfSense WebGUI go to `System` > `Package Manager` > `Available Packages Tab` and search for `HAProxy`. Install `haproxy` package.
 
-## 7.00 Edit your UniFi network firewall
-You should've already done this task if you followed these [instructions](https://github.com/ahuacate/proxmox-node/blob/master/README.md#25-edit-your-unifi-network-firewall). If not here they are again.
+## 7.00 Create some Firewall Rules
+You need to create two lots of firewall rules: A) Edit your UniFi network firewall; and, B) Create some pfSense WAN rules.
+
+### 7.01 Edit your UniFi network firewall
+You should've already done this task if you followed these [instructions](https://github.com/ahuacate/proxmox-node#305-edit-your-unifi-network-firewall). If not here they are again.
 
 On your Proxmox Qotom build (typhoon-01) NIC ports enp3s0 & enp4s0 are bonded to create LAG `bond1`. You will then create in Proxmox a Linux Bridge using `bond1` called `vmbr2`. When you install pfSense VM on typhoon-01 the pfSense and HAProxy software will assign `vmbr2` (bond1) as its WAN interface NIC.
 
-This WAN interface is VLAN2 and named in the UniFi controller software as `VPN-egress`. It's configured with network `Guest security policies` in the UniFi controller therefore it has no access to other network VLANs. The reason for this is explained build recipe for `VPN-egress` shown [HERE](https://github.com/ahuacate/proxmox-node#22-create-network-switch-vlans).
+This WAN interface is VLAN2 and named in the UniFi controller software as `VPN-egress`. It's configured with network `Guest security policies` in the UniFi controller therefore it has no access to other network VLANs. The reason for this is explained build recipe for `VPN-egress` shown [HERE](https://github.com/ahuacate/proxmox-node#302-create-network-switch-vlans).
 
 For HAProxy to work you must authorise VLAN2 (WAN in pfSense HAProxy) to have access to your Proxmox LXC server nodes with static IPv4 addresses on VLAN50.
 
@@ -322,14 +325,56 @@ The below instructions are for a UniFi controller `Settings` > `Guest Control`  
 | + Add IPv4 Hostname or subnet | Value | Notes
 | :---  | :---: | :---
 | IPv4 | 192.168.50.111 | *Jellyfin Server*
-| IPv4 | 192.168.50.112 | *Sonarr Server*
-| IPv4 | 192.168.50.113 | *Radarr Server*
-| IPv4 | 192.168.50.114 | *Nzbget Server*
-| IPv4 | 192.168.50.115 | *Deluge Server*
+| IPv4 | 192.168.50.112 | *Nzbget Server*
+| IPv4 | 192.168.50.113 | *Deluge Server*
+| IPv4 | 192.168.50.114 | *flexget Server*
+| IPv4 | 192.168.50.115 | *Sonarr Server*
+| IPv4 | 192.168.50.116 | *RadarrServer*
+| IPv4 | 192.168.50.117 | *Lidarr Server*
+| IPv4 | 192.168.50.118 | *Lazylibrarian Server*
+| IPv4 | 192.168.50.119 | *Ombi Server*
+| IPv4 | 192.168.50.122 | *Syncthing Server*
 
 And click `Apply Changes`.
 
 As you've probably concluded you must add any new HAProxy backend server IPv4 address(s) to the Unifi Pre-Authorization Access list for HAProxy frontend to have access to those backend VLAN50 servers.
+
+### 7.02 HAProxy Allow Rule on WAN - HAProxy
+This rule should've been created [HERE](https://github.com/ahuacate/pfsense-setup#907-haproxy-allow-rule-on-wan---haproxy). If not proceed and follow the instructions.
+
+All incoming traffic enters HAProxy on the pfSense WAN interface. Because we are using HTTPS we must allow TCP/443 through the firewall on the WAN interface. 
+
+Now using the pfSense web interface go to `Firewall` > `Rules` > `WAN Tab` > `Add (Arrow Down)` and create a new allow rule that look like the following:
+
+| Firewall Rule / WAN | Value | Notes
+| :---  | :--- | :---
+| **Edit Firewall Rule **
+| Action | `Pass`
+| Disabled | `☐` disable this rule
+| Interface | `WAN`
+| Addresss Family | `IPv4`
+| Protocol | `TCP`
+| **Source**
+| Source 
+| | `☐` Invert match. 
+| | `any` 
+| | Source Address - leave blank
+| **Destination**
+| Destination 
+| | `☐` Invert match.
+| | `This firewall (self)` 
+| | Destination Address - Leave Blank
+| Destination Port Range
+| | From `HTTPS(443)`
+| | Custom `Leave Blank`
+| | To `HTTPS(443)`
+| | Custom `Leave Blank`
+| **Extra Options**
+| Log | `☐` Log packets that are handled by this rule
+| Description | `Allow Wan Any HTTPS inbound to HAProxy`
+| Advanced Options | Leave Default
+
+Click `Save` and `Apply`.
 
 ## 8.00 HAProxy General Settings
 In the pfSense WebGUI go to `Service` > `ACME` > `Settings` and fill out the necessary fields as follows:
@@ -483,7 +528,7 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Frontend Tab` and click `Ad
 | Use "httpclose" option | `http=keep-alive (default)`
 | Bind pass thru | Leave blank
 | Advanced pass thru | Leave blank
-| ** SSL Offloading**
+| **SSL Offloading**
 | SNI filter | Leave blank
 | Certificate | `site1.foo.bar (CA: Acmecert: 0=Let’s Encrypt,CN=Let’s Encrypt Authority X3,C=US)[Server cert]`
 | Add ACL for certificate CommonName | `☑`
