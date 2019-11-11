@@ -482,7 +482,7 @@ Repeat for all your backend servers. To make life easy you can click the `Copy` 
 | Table-Mode | `active` | `active` | `active` | `active` | `active` | `active` | `active` 
 | Table-Name | `jellyfin` | `sonarr` | `radarr` | `nzbget` | `deluge` | `ombi` | `syncthing`
 | Table-Forwardto | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port` | `Address+Port`
-| Table-Address | `192.168.50.111` | `192.168.50.112` | `192.168.50.113` | `192.168.50.114` | `192.168.50.115` | `192.168.50.119` | `192.168.50.122`
+| Table-Address | `192.168.50.111` | `192.168.50.115` | `192.168.50.116` | `192.168.50.112` | `192.168.50.113` | `192.168.50.119` | `192.168.50.122`
 | Table-Port | `8096` | `8989` | `7878` | `8080` | `8112`| `5000` | `8384`
 | **Health checking**
 | Health check method | `Basic` | `HTTP` | `HTTP` | `HTTP` | `HTTP` | `HTTP` | `HTTP` |
