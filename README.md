@@ -80,7 +80,7 @@ First login to your Cloudfare Dashboard Home, choose your domain and go to `DNS 
 | `A` | `syncthing-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
 | `A` | `vpn-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
 
-### 2.02 Cloudfare Crypto
+### 2.02 Cloudfare SSL/TLS (formerly Crypto)
 Using your Cloudfare Dashboard Home, choose your domain and go to `SSL/TLS TAB`. Using the Cloudfare web interface edit the following form entries to match the table below:
 
 | SSL/TLS | Value | Notes
