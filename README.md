@@ -81,23 +81,28 @@ First login to your Cloudfare Dashboard Home, choose your domain and go to `DNS 
 | `A` | `vpn-site1` | 0.0.0.0 | `Automatic TTL` | `OFF` |
 
 ### 2.02 Cloudfare Crypto
-Using your Cloudfare Dashboard Home, choose your domain and go to `Crypto TAB`. Using the Cloudfare web interface edit the following form entries to match the table below:
+Using your Cloudfare Dashboard Home, choose your domain and go to `SSL/TLS TAB`. Using the Cloudfare web interface edit the following form entries to match the table below:
 
-| Crpto | Value | Notes
+| SSL/TLS | Value | Notes
 | :---: | :---: | :---
-| SSL | `Full` | *The section should show **Universal SSL Status Active Certificate***
+| **Overview**
+| Your SSL/TLS encryption mode | `Full` | 
+| **Edge Certificates**
 | Edge Certificates | Leave Default
-| Custom Hostnames | Leave Default
-| Origin Certificates | Leave Default
 | Always Use HTTPS | `On`
 | HTTP Strict Transport Security (HSTS) | Leave Default
-| Authenticated Origin Pulls | `On`
 | Minimum TLS Version | `TLS 1.0 (default)`
 | Opportunistic Encryption | `On`
 | Onion Routing  | `On`
 | TLS 1.3  | `On`
 | Automatic HTTPS Rewrites | `Off`
-| Disable Universal SSL | Leave Default
+| Certificate Transparency Monitoring | 'Off'
+| Disable Universal SSL | Leave Default (should be enabled)
+| **Origin Server**
+| Origin Certificates | Leave Default
+| Authenticated Origin Pulls | `Off`
+| **Custome Hostnames**
+| Custom Hostnames | Leave Default
 
 ## 3.00 pfSense Dynamic DNS
 Cloudfare provides you with a API key (called the Global API Key)which gives pfSense the rights to update your domains DNS information. So have your Cloudfare Global API key ready by:
