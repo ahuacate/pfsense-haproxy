@@ -23,7 +23,7 @@ Tasks to be performed are:
 - [1.00 Create a Cloudfare Acccount](#100-create-a-cloudfare-acccount)
 - [2.00 Configure your domains at Cloudfare](#200-configure-your-domains-at-cloudfare)
 	- [2.01 Create DNS A records for your servers](#201-create-dns-a-records-for-your-servers)
-	- [2.02 Cloudfare Crypto](#202-cloudfare-crypto)
+	- [2.02 Cloudfare SLS/TLS](#202-cloudfare-crypto)
 - [3.00 pfSense Dynamic DNS](#300-pfsense-dynamic-dns)
 	- [3.01 Create pfSense Dynamic DNS entries](#301-create-pfsense-dynamic-dns-entries)
 - [4.00 Install ACME on pfSense](#400-install-acme-on-pfsense)
