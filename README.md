@@ -1,15 +1,17 @@
 <h1>pfSense HAProxy</h1>
 
+This guide is for pfSense add-on HAProxy.
+
 A reverse proxy server is a type of proxy server that typically sits behind a firewall in a private network and directs client requests to the appropriate backend server. A reverse proxy provides an additional level of abstraction and control to ensure the smooth flow of network traffic between clients and servers.
 
-The easiest way to set up HAProxy is with pfSense HAProxy add-on.
+The easiest way to set up HAProxy is by a pfSense HAProxy add-on.
 
-With HAProxy you will have access to your Apps and internal servers using address URLs like:
+With HAProxy you will have access to your applications and internal servers using address URLs like:
 >  https://unifi-site1.foo.bar --> unifi 192.168.1.251
->  https://jellyfin-site1.foo.bar --> jellyfin 192.168.50.121
+>  https://jellyfin-site1.foo.bar --> jellyfin.local
 
-Using one public-facing IP address and SSL port 443 this guide will:
-*  route your SSH and Rsync connections to a specific server,
+Using one public-facing IP address and SSL port 443 you can:
+*  route your SSH and Rsync connections to a specific server.
 *  add a security layer to restrict the login ability based on client certificates.
 *  route your HTTPS connections to a predefined list of backend servers.
 
@@ -17,17 +19,11 @@ For SSH or Rsync we’ll use the TLS protocol and its SNI extension together wit
 
 pfSense package manager has a ready-built distribution of HAProxy.
 
-**Prerequisites**
+<h2>Prerequisites</h2>
 
-Network prerequisites are:
-- [x] Layer 2 Network Switches
-- [x] Network Gateway is `192.168.1.5`
-- [x] Network DNS server is `192.168.1.5` (Note: your Gateway hardware should enable you to configure DNS server(s), like a UniFi USG Gateway, so set the following: primary DNS `192.168.1.254` which will be your PiHole server IP address; and, secondary DNS `1.1.1.1` which is a backup Cloudflare DNS server in the event your PiHole server 192.168.1.254 fails or is down)
-- [x] Network DHCP server is `192.168.1.5`
-
-Other Prerequisites are:
-- [ ] Proxmox node fully configured as per [PVE Host Setup](https://github.com/ahuacate/proxmox-node/blob/master/README.md#proxmox-node-building) (Recommended)
-- [x] pfSense is fully configured as per [pfSense - Setup](https://github.com/ahuacate/pfsense-setup/blob/master/README.md#pfsense---setup)
+- [ ] Proxmox hosts fully configured as per guide: [PVE Host Setup](https://github.com/ahuacate/pve-host) (Recommended)
+- [x] pfSense is fully configured as per guide: [pfSense Setup](https://github.com/ahuacate/pfsense-setup)
+- [x] PiHole DNS server
 - [x] You own a registered Domain name
 
 <hr>
@@ -61,10 +57,8 @@ Other Prerequisites are:
     - [7.3. Create user certificates](#73-create-user-certificates)
         - [7.3.1. Create user certificate for SSLH (single user certificate option)](#731-create-user-certificate-for-sslh-single-user-certificate-option)
     - [7.4. Export user CAs and certificates](#74-export-user-cas-and-certificates)
-- [8. Create & Edit some Firewall Rules](#8-create--edit-some-firewall-rules)
-    - [8.1. Edit your UniFi network firewall](#81-edit-your-unifi-network-firewall)
-    - [8.2. HAProxy Allow Rule on WAN - HAProxy](#82-haproxy-allow-rule-on-wan---haproxy)
-- [9. Create pfSense DNS Resolver Host Overrides](#9-create-pfsense-dns-resolver-host-overrides)
+- [8. Configure Firewall Rules](#8-configure-firewall-rules)
+- [9. Configure pfSense DNS Resolver Host Overrides](#9-configure-pfsense-dns-resolver-host-overrides)
 - [10. HAProxy Setup](#10-haproxy-setup)
     - [10.1. Install HAProxy](#101-install-haproxy)
     - [10.2. HAProxy General Settings](#102-haproxy-general-settings)
@@ -77,12 +71,14 @@ Other Prerequisites are:
     - [12.1. Fix for pfSense Dynamic DNS](#121-fix-for-pfsense-dynamic-dns)
         - [12.1.1. Install a Cron Manager](#1211-install-a-cron-manager)
         - [12.1.2. Configure your Dynamic DNS Cron Schedule](#1212-configure-your-dynamic-dns-cron-schedule)
-    - [12.2. pfSense Dynamic DNS Cloudflare with proxy enabled doesn't work at all](#122-pfsense-dynamic-dns-cloudflare-with-proxy-enabled-doesnt-work-at-all)
 
 <!-- /TOC -->
+<hr>
 
 # 1. Create a Cloudflare Account
-I recommend you redirect your domain DNS Names Servers to Cloudflare. Not only are Cloudflare DNS servers fast, but they also have an API Key for configuring your DNS records automatically and provide a **free Dynamic DNS service**. If you want to use Cloudflare DNS name servers you can create a free account at Cloudflare.
+I recommend you redirect your domain DNS Names Servers to Cloudflare.
+
+Cloudflare DNS servers fast, they support a API Key for configuring your pfSense DNS records and provide a **free Dynamic DNS service**. A Cloudflare DNS name server is free for basic home users.
 
 There are plenty of tutorials about how to move your DNS services from Google, GoDaddy, and other providers to Cloudflare on the internet.
 
@@ -108,8 +104,8 @@ The IPv4 address 0.0.0.0 will be updated by your pfSense DDNS service.
 ## 2.2. Cloudflare SSL/TLS (formerly Crypto)
 Using your Cloudflare Dashboard Home, choose your domain and go to `SSL/TLS TAB`. Using the Cloudflare web interface edit the following form entries to match the table below:
 
-| SSL/TLS | Value | Notes
-| :---: | :---: | :---
+| SSL/TLS | Value 
+| :---: | :---
 | **Overview**
 | Your SSL/TLS encryption mode | `Full` | 
 | **Edge Certificates**
@@ -131,13 +127,15 @@ Using your Cloudflare Dashboard Home, choose your domain and go to `SSL/TLS TAB`
 # 3. WAN Gateway Port Forwarding
 You must create Port Forward rules from your WAN Gateway device to your pfSense host. Apply the following rules to your WAN Gateway device (shown are UniFi USG rules).
 
+Navigate using the UniFi controller web interface to `Settings` > `Firewall & Security` > `Port Forwarding` and complete as follows.
+
 | Name | From | Port | Dest IP/Port | Enabled | WAN Interface
 | :---: | :---: | :---: | :---: | :---: | :---:
 | HAProxy | `*` |  `80` |  `192.168.2.1:80` |  ✅ |  `WAN` 
 | HAProxy | `*` |  `443` |  `192.168.2.1:443` |  ✅ |  `WAN` 
 | HAProxy | `*` |  `8443` |  `192.168.2.1:8443` |  ✅ |  `WAN`
 
-![export keys](./images/haproxy_portforward.png)
+![Port forwarding](./images/UniFi-Firewall_Security-Port_Forwarding.png)
 
 # 4. pfSense Dynamic DNS
 Cloudflare provides you with an API key (called the Global API Key) which gives pfSense the rights to update your domain's DNS information. So have your Cloudflare Global API key ready by:
@@ -148,7 +146,7 @@ Cloudflare provides you with an API key (called the Global API Key) which gives 
 ## 4.1. Create pfSense Dynamic DNS entries
 Configure for each HAProxy backend server you want access to (i.e sslh-site.foo.bar, jellyfin-site.foo.bar, sonarr-site.foo.bar etc).
 
-In the pfSense WebGUI go to `Services` > `Dynamic DNS`. Click `Add` and fill out the necessary fields as follows.
+Navigate using the pfSense web interface to `Services` > `Dynamic DNS`. Click `Add` and fill out the necessary fields as follows.
 
 | Dynamic DNS Client | Value
 | :--- | :---
@@ -172,10 +170,10 @@ Then check your Cloudflare DNS A-records you created should change from 0.0.0.0 
 # 5. Install ACME on pfSense
 We need to install the ACME package on your pfSense. ACME is Automated Certificate Management Environment, for automated use of LetsEncrypt certificates.
 
-In the pfSense WebGUI go to `System` > `Package Manager` > `Available Packages Tab` and search for `ACME`. Install the `ACME` package.
+Navigate using the pfSense web interface to `System` > `Package Manager` > `Available Packages Tab` and search for `ACME`. Install the `ACME` package.
 
 ## 5.1. ACME General Settings
-In the pfSense WebGUI go to `Service` > `ACME` > `Settings` > `General settings` and fill out the necessary fields as follows:
+Navigate using the pfSense web interface to `Service` > `ACME` > `Settings` > `General settings` and fill out the necessary fields as follows:
 
 | General Settings Tab | Value 
 | :--- | :---
@@ -192,7 +190,7 @@ First, you need to create some account keys. LetsEncrypt is rate limited so you 
 
 So we will create two Account Keys.
 
-In the pfSense WebGUI go to `Services` > `Acme Certificates` > `Account Keys`. Click `Add` and fill out the necessary fields as follows:
+Navigate using the pfSense web interface to `Services` > `Acme Certificates` > `Account Keys`. Click `Add` and fill out the necessary fields as follows:
 
 | Edit Certificate options | Value | Notes
 | :--- | :--- | :---
@@ -220,7 +218,7 @@ Then click the `Register ACME Account key`. The little cog will spin and if it w
 Finally, click `Save`.
 
 ## 6.2. Create ACME Certificates - Media
-In the pfSense WebGUI go to `Services` > `Acme Certificates` > `Certificates`. Click `Add` and fill out the necessary fields as follows. Notice I have multiple entries in the Domain SAN List. This means the same certificate will be used for each server connection. In this example we will get a certificate that covers servers `jellyfin-site1`, `radarr-site1`, `sonarr-site1`, `nzbget-site1` and `deluge-site1` - basically all your media server connections.
+Navigate using the pfSense web interface to `Services` > `Acme Certificates` > `Certificates`. Click `Add` and fill out the necessary fields as follows. Notice I have multiple entries in the Domain SAN List. This means the same certificate will be used for each server connection. In this example we will get a certificate that covers servers `jellyfin-site1`, `radarr-site1`, `sonarr-site1`, `nzbget-site1` and `deluge-site1` - basically all your media server connections.
 
 | Edit Certificate options | Value
 | :--- | :---
@@ -303,7 +301,7 @@ Final validation of your newly created LetsEncrypt certificate can be done by go
 ## 6.3. Create ACME Certificates - SSLH and VPN
 This is a repeat of the previous step but for SSLH (SSH or Kodi-Rsync connections) and VPN connections.
 
-In the pfSense WebGUI go to `Services` > `Acme Certificates` > `Certificates`. Click `Add` and fill out the necessary fields as follows. Notice I have multiple entries in the Domain SAN List. In this example, we will get a certificate that covers servers `sslh-site1` and `vpn-site1` only - all your secure private server connections.
+Navigate using the pfSense web interface to `Services` > `Acme Certificates` > `Certificates`. Click `Add` and fill out the necessary fields as follows. Notice I have multiple entries in the Domain SAN List. In this example, we will get a certificate that covers servers `sslh-site1` and `vpn-site1` only - all your secure private server connections.
 
 ### 6.3.1. SSLH Server Certificate
 
@@ -357,7 +355,7 @@ OpenVPN connect-in traffic.
 You need 2 separate internal Certificate Authorities (CA's) which we will be creating in the pfSense Certificate Manager.
 
 ### 7.1.1. Create internal certificate for SSLH
-In the pfSense WebGUI go to `System` > `Certificate Manager` > `CAs`. Click `Add` and fill out the necessary fields as follows.
+Navigate using the pfSense web interface to `System` > `Certificate Manager` > `CAs`. Click `Add` and fill out the necessary fields as follows.
 
 | Create / Edit CA | Value
 | :--- | :---
@@ -375,7 +373,7 @@ In the pfSense WebGUI go to `System` > `Certificate Manager` > `CAs`. Click `Add
 And click `Save`.
 
 ### 7.1.2. Create internal certificate for VPN
-In the pfSense WebGUI go to `System` > `Certificate Manager` > `CAs`. Click `Add` and fill out the necessary fields as follows.
+Navigate using the pfSense web interface to `System` > `Certificate Manager` > `CAs`. Click `Add` and fill out the necessary fields as follows.
 
 | Create / Edit CA | Value
 | :--- | :---
@@ -396,7 +394,7 @@ And click `Save`.
 You need to create two server certificates for Acmi SSLH Gateway and Acmi VPN Gateway.
 
 ### 7.2.1. Create server certificate for SSLH
-In the pfSense WebGUI go to `System` > `Certificate Manager` > `Certificates`. Click `Add` and fill out the necessary fields as follows.
+Navigate using the pfSense web interface to `System` > `Certificate Manager` > `Certificates`. Click `Add` and fill out the necessary fields as follows.
 
 | Create / Edit CA | Value
 | :--- | :---
@@ -415,7 +413,7 @@ In the pfSense WebGUI go to `System` > `Certificate Manager` > `Certificates`. C
 And click `Save`.
 
 ### 7.2.2. Create server certificate for VPN
-In the pfSense WebGUI go to `System` > `Certificate Manager` > `Certificates`. Click `Add` and fill out the necessary fields as follows.
+Navigate using the pfSense web interface to `System` > `Certificate Manager` > `Certificates`. Click `Add` and fill out the necessary fields as follows.
 
 | Create / Edit CA | Value
 | :--- | :---
@@ -441,7 +439,7 @@ For VPN and HTTP-auth users, you can if you want create just one single user cer
 ### 7.3.1. Create user certificate for SSLH (single user certificate option)
 The following example is for user Kodirsync. Change the `Descriptive name`, `Common Name` and `Certificate authority` sections accordingly for VPN and SSH users.
 
-In the pfSense WebGUI go to `System` > `Certificate Manager` > `Certificates`. Click `Add` and fill out the necessary fields as follows.
+Navigate using the pfSense web interface to `System` > `Certificate Manager` > `Certificates`. Click `Add` and fill out the necessary fields as follows.
 
 | Create / Edit CA | Value
 | :--- | :---
@@ -464,7 +462,7 @@ Your SSH or Kodi-Rsync clients will require a certificate (.crt file) and certif
 * **Acmi SSLH - Kodirsync** - CA file
 * **Acmi SSLH - Kodirsync** -  key file
 
-In the pfSense WebGUI go to `System` > `Certificate Manager` > `Certificates`. For user "Acmi SSLH - Kodirsync" click `Export Certificate` and `Export Key` and save to your local machine or NAS.
+Navigate using the pfSense web interface to `System` > `Certificate Manager` > `Certificates`. For user "Acmi SSLH - Kodirsync" click `Export Certificate` and `Export Key` and save to your local machine or NAS.
 
 ![export keys](./images/haproxy_kodirsync_exports.png)
 
@@ -473,104 +471,51 @@ The two files will later be copied to your Kodi-Rsync server folder `~/.ssh` and
 > Acmi+SSLH+-+Kodirsync.key >> sslh_kodirsync.key
 
 
-# 8. Create & Edit some Firewall Rules
-You need to create two lots of firewall rules: A) Edit your UniFi network firewall; and, B) Create some pfSense WAN rules.
+# 8. Configure Firewall Rules
+You need to create two sets of firewall rules.
 
-## 8.1. Edit your UniFi network firewall
-You should've already done this task if you followed these [instructions](https://github.com/ahuacate/proxmox-node#305-edit-your-unifi-network-firewall). If not here they are again.
+* UniFi Firewall Rules
+* pfSense Firewall Rules
 
-On pfSense HAProxy is assign PVE `vmbr2` as its WAN interface NIC (i.e IPv4 192.168.2.1).
+Both sets of rules are clearly defined in our pfSense setup guide [here](https://github.com/ahuacate/pfsense-setup). This task must be done.
 
-This WAN interface is VLAN2 and is named in the UniFi controller software as `VPN-egress`. It's configured with network `Guest security policies` in the UniFi controller therefore it has no access to other network VLANs. The reason for this is explained build recipe for `VPN-egress` shown [HERE](https://github.com/ahuacate/proxmox-node#302-create-network-switch-vlans).
 
-For HAProxy to work, you must authorize VLAN2 (WAN in pfSense HAProxy) to have access to your Proxmox LXC server nodes with static IPv4 addresses on VLAN50.
+# 9. Configure pfSense DNS Resolver Host Overrides
+PfSense should be set to use PiHole DNS and when PiHole is configured with "Conditional Forwarding" then DNS Resolver overrides are not required.
 
-The below instructions are for a UniFi controller `Settings` > `Guest Control`  and look under the `Access Control` section. Under `Pre-Authorization Access` click`**+** Add IPv4 Hostname or subnet` to add the relevant IPv4 addresses to authorize access for VLAN2 clients: fill out the UniFi form details as shown below:
+If you are NOT using PiHole DNS configured with "Conditional Forwarding" then you may have issues resolving hostnames. The solution is to set "Host Overrides" for all backend servers.
 
-| + Add IPv4 Hostname or subnet | Value | Notes
-| :---  | :---: | :---
-| IPv4 | 192.168.50.111 | *Jellyfin Server*
-| IPv4 | 192.168.30.112 | *Nzbget Server*
-| IPv4 | 192.168.30.113 | *Deluge Server*
-| IPv4 | 192.168.50.114 | *flexget Server*
-| IPv4 | 192.168.50.115 | *Sonarr Server*
-| IPv4 | 192.168.50.116 | *Radarr Server*
-| IPv4 | 192.168.50.117 | *Lidarr Server*
-| IPv4 | 192.168.50.118 | *Lazylibrarian Server*
-| IPv4 | 192.168.50.119 | *Ombi Server*
-| IPv4 | 192.168.50.121 | *Kodirsync Server*
-| IPv4 | 192.168.80.122 | *Syncthing Server*
-
-And click `Apply Changes`.
-
-You must add any new HAProxy backend server IPv4 address(s) to the Unifi Pre-Authorization Access list for HAProxy frontend to have access to those backend servers.
-
-## 8.2. HAProxy Allow Rule on WAN - HAProxy
-This rule should've been created [HERE](https://github.com/ahuacate/pfsense-setup#907-haproxy-allow-rule-on-wan---haproxy). If not proceed and follow the instructions.
-
-All incoming traffic enters HAProxy on the pfSense WAN interface. Because we are using HTTPS we must allow TCP/443 through the firewall on the WAN interface. 
-
-Now using the pfSense web interface go to `Firewall` > `Rules` > `WAN Tab` > `Add (Arrow Down)` and create a new allow rule that looks like the following:
-
-| Firewall Rule / WAN | Value | Notes
-| :---  | :--- | :---
-| **Edit Firewall Rule **
-| Action | `Pass`
-| Disabled | `☐` disable this rule
-| Interface | `WAN`
-| Addresss Family | `IPv4`
-| Protocol | `TCP`
-| **Source**
-| Source 
-| | `☐` Invert match. 
-| | `any` 
-| | Source Address - leave blank
-| **Destination**
-| Destination 
-| | `☐` Invert match.
-| | `This firewall (self)` 
-| | Destination Address - Leave Blank
-| Destination Port Range
-| | From `HTTPS(443)`
-| | Custom `Leave Blank`
-| | To `HTTPS(443)`
-| | Custom `Leave Blank`
-| **Extra Options**
-| Log | `☐` Log packets that are handled by this rule
-| Description | `Allow Wan Any HTTPS inbound to HAProxy`
-| Advanced Options | Leave Default
-
-Click `Save` and `Apply`.
-
-# 9. Create pfSense DNS Resolver Host Overrides
 Enter individual HAProxy backend servers for which the pfSense DNS resolvers standard DNS should be overridden by specific IPv4/v6 addresses. This is mostly for SSLH backend servers.
 
-Now using the pfSense web interface go to `Services` > `DNS Resolver` > `General Settings` and scroll down to the section labelled `Host Overrides` amd create a new DNS rule that looks like the following example:
+Now using the pfSense web interface go to `Services` > `DNS Resolver` > `General Settings` and scroll down to the section labelled `Host Overrides` amd create a new DNS rule that looks like the following example.
 
 | Host | Parent domain of host | IP to return for host | Description
-| :---:  | :---: | :---: | :---:
-| kodirsync | localdomain | 192.168.50.121 | Kodi-Rsync server
+| :---  | :---: | :---: | :---:
+| jellyfin | local | 192.168.50.150 | Jellyfin server
+| kodirsync | local | 192.168.50.151 | Kodi-Rsync server
 
 
 # 10. HAProxy Setup
 HAProxy is a proxy for TCP and HTTP-based applications. You need to define frontends and backends.
+
 The HAProxy backend section defines a group of servers that are assigned to handle requests such as a Jellyfin or a Kodi-Rsync server. A backend server responds to incoming requests if a given condition is true.
+
 The HAProxy frontend section receives all of the incoming connection requests. All requests will be coming in one the same IP address and port (443) but we need a way to distinguish between requests so that those for jellyfin-site1.foo.bar go to the Jellyfin backend and those for sonarr-site1.foo.bar go to the Sonarr backend.
 
 ## 10.1. Install HAProxy
-In the pfSense WebGUI go to `System` > `Package Manager` > `Available Packages Tab` and search for `haproxy-devel`. Install `haproxy-devel` package. The standard release version of HAProxy at version 0.61_1 didn't work with my HAProxy settings - maybe a later version will.
+Navigate using the pfSense web interface to `System` > `Package Manager` > `Available Packages Tab` and search for `haproxy-devel`. Install `haproxy-devel` package. The standard release version of HAProxy at version 0.61_1 didn't work with my HAProxy settings - maybe a later version will.
 
 ## 10.2. HAProxy General Settings
-In the pfSense WebGUI go to `Service` > `HAProxy` > `Settings` and fill out the necessary fields as follows:
+Navigate using the pfSense web interface to `Service` > `HAProxy` > `Settings` and fill out the necessary fields as follows:
 
 | Settings Tab | Value 
 | :--- | :--- 
-| Enable HAProxy | `☑` 
+| Enable HAProxy | `☑` Enable HAProxy
 | Maximum connections | `256`
 | Number of processes to start | `1`
-| Number of theads to start per process | `1`
-| Reload behaviour | `☑ Force immediate stop of old process on reload. (closes existing connections)`
-| Reload stop behaviour | Leave default
+| Number of threads to start per process | `1`
+| Reload behavior | `☑ Force immediate stop of old process on reload. (closes existing connections)`
+| Reload stop behavior | Leave default
 | Carp monitor | `Disabled`
 | **Stats tab, 'internal' stats port**
 | Internal stats port  | `2200`
@@ -582,7 +527,9 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Settings` and fill out the 
 | Syslog level | `Informational`
 | Log hostname | Leave blank
 | **Global DNS resolvers for haproxy**
-| DNS servers | Leave blank
+| DNS servers
+|| `UniFi (router)` - `192.168.1.5` - `53`
+|| `PiHole` - `192.168.1.6` - `53`
 | Retries | Leave blank
 | Retry timeout | Leave blank
 | Interval | Leave blank
@@ -596,9 +543,10 @@ In the pfSense WebGUI go to `Service` > `HAProxy` > `Settings` and fill out the 
 | SSL/TLS Compatibility Mode | `Auto`
 | Max SSL Diffie-Hellman size | `2048`
 | **Global Advanced pass thru**
-| Custom options | `ssl-default-bind-ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!3DES:!MD5:!PSK`
-| Custom options | `tune.ssl.maxrecord 1370`
-| Custom options | `ssl-default-bind-options no-sslv3 no-tls-tickets`
+| Custom options
+| | `ssl-default-bind-ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!3DES:!MD5:!PSK`
+| | `tune.ssl.maxrecord 1370`
+| | `ssl-default-bind-options no-sslv3 no-tls-tickets`
 | **Configuration synchronization**
 | HAProxy Sync | `☐  Sync HAProxy configuration to backup CARP members via XMLRPC.`
 
@@ -612,18 +560,18 @@ Appreciation to this author for a excellent homelab HAProxy [solution](https://j
 ![frontend](./images/haproxy_be.png)
 
 ### 10.3.1. My Working haproxy.cfg
-This is my working `/var/etc/haproxy/haproxy.cfg` configuration file. Change the site1.foo.bar to your domain.
+This is my working `/var/etc/haproxy/haproxy.cfg` configuration file: [here](https://github.com/ahuacate/pfsense-haproxy/restore/haproxy.cfg). Change the address 'site1.foo.bar' to your sub-domain and domain.
 
 ```
 # Automaticaly generated, dont edit manually.
-# Generated on: 2021-06-17 15:35
+# Generated on: 2022-12-07 22:20
+# Edit '-site1.foo.bar' to your sub/domain
 global
 	maxconn			256
 	log			/var/run/log	local0	info
 	stats socket /tmp/haproxy.socket level admin  expose-fd listeners
 	uid			80
 	gid			80
-	nbproc			1
 	nbthread			1
 	hard-stop-after		15m
 	chroot				/tmp/haproxy_chroot
@@ -645,6 +593,13 @@ listen HAProxyLocalStats
 	timeout connect 5000
 	timeout server 5000
 
+resolvers globalresolvers
+	nameserver Unifi 192.168.1.5:53
+	nameserver PiHole 192.168.1.6:53
+	resolve_retries 3
+	timeout retry 1s
+	timeout resolve 10s
+
 frontend WAN_443-merged
 	bind			192.168.2.1:443 name 192.168.2.1:443   
 	mode			tcp
@@ -652,6 +607,7 @@ frontend WAN_443-merged
 	timeout client		30000
 	tcp-request inspect-delay 5s
 	tcp-request content accept if { req.ssl_hello_type 1 } || !{ req.ssl_hello_type 1 }
+	#tcp-request content accept if { req.ssl_hello_type 1 }
 	acl			acl1	req.ssl_hello_type 1
 	acl			acl2	req.ssl_sni -m end -i .sllh-site1.foo.bar
 	acl			acl3	req.ssl_sni -m end -i .vpn-site1.foo.bar
@@ -678,10 +634,16 @@ frontend WAN_HTTPS-merged
 	http-request set-header		X-Forwarded-Proto http if !https
 	http-request set-header		X-Forwarded-Proto https if https
 	timeout client		30000
+	acl			aclcrt_WAN_HTTPS	var(txn.txnhost) -m reg -i ^audio-site1\.foo\.bar(:([0-9]){1,5})?$
+	acl			aclcrt_WAN_HTTPS	var(txn.txnhost) -m reg -i ^guaca-site1\.foo\.bar(:([0-9]){1,5})?$
 	acl			aclcrt_WAN_HTTPS	var(txn.txnhost) -m reg -i ^jellyfin-site1\.foo\.bar(:([0-9]){1,5})?$
 	acl			jellyfin-acl	var(txn.txnhost) -m str -i jellyfin-site1.foo.bar
+	acl			booksonic-acl	var(txn.txnhost) -m beg -i audio-site1.foo.bar
+	acl			guacamole-acl	var(txn.txnhost) -m str -i guaca-site1.foo.bar
 	http-request set-var(txn.txnhost) hdr(host)
 	use_backend jellyfin-server_ipvANY  if  jellyfin-acl 
+	use_backend booksonic-server_ipvANY  if  booksonic-acl 
+	use_backend guacamole-server_ipvANY  if  guacamole-acl 
 
 frontend WAN_SSLH
 	bind			127.0.0.1:2022 name 127.0.0.1:2022  no-sslv3 ssl crt-list /var/etc/haproxy/WAN_SSLH.crt_list ca-file /var/etc/haproxy/clientca_WAN_SSLH.pem verify required  accept-proxy alpn ssh/2.0
@@ -710,7 +672,7 @@ frontend WAN_HTTPS_auth
 	http-request set-header		X-Forwarded-Proto http if !https
 	http-request set-header		X-Forwarded-Proto https if https
 	timeout client		30000
-	acl			aclcrt_WAN_HTTPS_auth	var(txn.txnhost) -m reg -i ^sslh-site1\.foo\.me(:([0-9]){1,5})?$
+	acl			aclcrt_WAN_HTTPS_auth	var(txn.txnhost) -m reg -i ^sslh-site1\.foo\.bar(:([0-9]){1,5})?$
 	http-request set-var(txn.txnhost) hdr(host)
 
 backend DUMMY_BACKEND_ipvANY
@@ -720,7 +682,8 @@ backend DUMMY_BACKEND_ipvANY
 	timeout connect		30000
 	timeout server		30000
 	retries			3
-	server			none 127.0.0.1:80 id 105 disabled 
+	load-server-state-from-file	global
+	server			none 127.0.0.1:80 id 105 disabled resolvers globalresolvers 
 
 backend WAN_HTTPS_ipvANY
 	mode			tcp
@@ -729,7 +692,8 @@ backend WAN_HTTPS_ipvANY
 	timeout connect		30000
 	timeout server		30000
 	retries			3
-	server			wan_https 127.0.0.1:2043 id 117 check-ssl  verify none send-proxy 
+	load-server-state-from-file	global
+	server			wan_https 127.0.0.1:2043 id 117 check-ssl  verify none resolvers globalresolvers send-proxy 
 
 backend WAN_SSLH_ipvANY
 	mode			tcp
@@ -738,7 +702,8 @@ backend WAN_SSLH_ipvANY
 	timeout connect		30000
 	timeout server		30000
 	retries			3
-	server			wan_sslh 127.0.0.1:2022 id 121 check-ssl  verify none send-proxy 
+	load-server-state-from-file	global
+	server			wan_sslh 127.0.0.1:2022 id 121 check-ssl  verify none resolvers globalresolvers send-proxy 
 
 backend OpenVPN_ipvANY
 	mode			tcp
@@ -747,7 +712,8 @@ backend OpenVPN_ipvANY
 	timeout connect		30000
 	timeout server		30000
 	retries			2
-	server			openvpn 127.0.0.1:1194 id 110  
+	load-server-state-from-file	global
+	server			openvpn 127.0.0.1:1194 id 110  resolvers globalresolvers 
 
 backend WAN_HTTPS_auth_ipvANY
 	mode			tcp
@@ -756,7 +722,8 @@ backend WAN_HTTPS_auth_ipvANY
 	timeout connect		30000
 	timeout server		30000
 	retries			3
-	server			wan_https_auth 127.0.0.1:2044 id 112 check-ssl  verify none send-proxy 
+	load-server-state-from-file	global
+	server			wan_https_auth 127.0.0.1:2044 id 112 check-ssl  verify none resolvers globalresolvers send-proxy 
 
 backend jellyfin-server_ipvANY
 	mode			http
@@ -765,7 +732,28 @@ backend jellyfin-server_ipvANY
 	timeout connect		30000
 	timeout server		30000
 	retries			3
-	server			jellyfin-server 192.168.50.111:8096 id 122  
+	load-server-state-from-file	global
+	server			jellyfin-server jellyfin.local:8096 id 122  resolvers globalresolvers 
+
+backend booksonic-server_ipvANY
+	mode			http
+	id			100
+	log			global
+	timeout connect		30000
+	timeout server		30000
+	retries			3
+	load-server-state-from-file	global
+	server			booksonic-server booksonic.local:4040 id 122  resolvers globalresolvers 
+
+backend guacamole-server_ipvANY
+	mode			http
+	id			101
+	log			global
+	timeout connect		30000
+	timeout server		30000
+	retries			3
+	load-server-state-from-file	global
+	server			guacamole-server guacamole.local:8080 id 122  resolvers globalresolvers 
 
 backend kodirsync.sslh-site1.foo.bar_ipvANY
 	mode			tcp
@@ -774,7 +762,8 @@ backend kodirsync.sslh-site1.foo.bar_ipvANY
 	timeout connect		30000
 	timeout server		30000
 	retries			3
-	server			kodirsync-server 192.168.50.121:22 id 103  
+	load-server-state-from-file	global
+	server			kodirsync-server kodirsync.local:22 id 103  resolvers globalresolvers 
 
 backend SSL-redirect_ipvANY
 	mode			http
@@ -783,6 +772,7 @@ backend SSL-redirect_ipvANY
 	timeout connect		30000
 	timeout server		30000
 	retries			3
+	load-server-state-from-file	global
 	redirect scheme https code 301
 ```
 
@@ -818,10 +808,10 @@ You will know if you have a problem when you cannot remotely access your server 
 The workaround is to install a CRON manager.
 
 ### 12.1.1. Install a Cron Manager
-In the pfSense WebGUI go to `System` > `Package Manager` > `Available Packages Tab` and search for `Cron`. Install the `Cron` package.
+Navigate using the pfSense web interface to `System` > `Package Manager` > `Available Packages Tab` and search for `Cron`. Install the `Cron` package.
 
 ### 12.1.2. Configure your Dynamic DNS Cron Schedule
-In the pfSense WebGUI go to `Services` > `Cron` > `Settings Tab` and click on the pencil for entry with `rc.dyndns.update` in its command name.  Edit the necessary fields as follows:
+Navigate using the pfSense web interface to `Services` > `Cron` > `Settings Tab` and click on the pencil for entry with `rc.dyndns.update` in its command name.  Edit the necessary fields as follows:
 
 | Add A Cron Schedule | Value
 | :--- | :---
@@ -837,14 +827,14 @@ And click `Save`.
 
 This will force pfSense to check for WAN IP changes every 5 minutes.
 
-## 12.2. pfSense Dynamic DNS Cloudflare with proxy enabled doesn't work at all
+<!-- ## 12.2. pfSense Dynamic DNS Cloudflare with proxy enabled doesn't work at all
 Fix for log errors like this:
 
 ```
  PAYLOAD: {"success":false,"errors":[{"code":1004,"message":"DNS Validation Error","error_chain":[{"code":9003,"message":"Invalid 'proxied' value, must be a boolean"}]}],"messages":[],"result":null}
  ```
  
-In the pfSense WebGUI go to `Diagnostics` > `Edit File` > `Browse Tab` and browse to folder /etc/inc/ and select `services.inc` file. Now use the `GoTo line` field and type in `1881`. Replace `$dnsProxied = $conf['proxied'],` with `$dnsProxied = isset($conf['proxied']),` and click `Save`. Reboot pfSense.
+Navigate using the pfSense web interface to `Diagnostics` > `Edit File` > `Browse Tab` and browse to folder /etc/inc/ and select `services.inc` file. Now use the `GoTo line` field and type in `1881`. Replace `$dnsProxied = $conf['proxied'],` with `$dnsProxied = isset($conf['proxied']),` and click `Save`. Reboot pfSense.
 
 ```
 	$dns = new updatedns($dnsService = $conf['type'],
@@ -855,5 +845,5 @@ In the pfSense WebGUI go to `Diagnostics` > `Edit File` > `Browse Tab` and brows
 		$dnsWildcard = $conf['wildcard'],
                 $dnsProxied = isset($conf['proxied']),
 		$dnsMX = $conf['mx'],
-```
+``` -->
 
