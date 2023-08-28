@@ -1,23 +1,23 @@
 <h1>pfSense HAProxy</h1>
 
-This guide is for pfSense add-on HAProxy.
+This guide focuses on using the HAProxy add-on for pfSense.
 
-A reverse proxy server is a type of proxy server that typically sits behind a firewall in a private network and directs client requests to the appropriate backend server. A reverse proxy provides an additional level of abstraction and control to ensure the smooth flow of network traffic between clients and servers.
+HAProxy is a reverse proxy server that operates behind a firewall within a private network. It directs client requests to the appropriate backend server, providing an additional layer of abstraction and control for efficient network traffic flow between clients and servers.
 
-The easiest way to set up HAProxy is by a pfSense HAProxy add-on.
+To set up HAProxy easily, you can utilize the pfSense HAProxy add-on. By using HAProxy, you gain the ability to access your applications and internal servers using address URLs such as:
 
-With HAProxy you will have access to your applications and internal servers using address URLs like:
->  https://unifi-site1.foo.bar --> unifi 192.168.1.251
->  https://jellyfin-site1.foo.bar --> jellyfin.local
+> https://unifi-site1.foo.bar → unifi.local
+> https://jellyfin-site1.foo.bar → jellyfin.local
 
-Using one public-facing IP address and SSL port 443 you can:
-*  route your SSH and Rsync connections to a specific server.
-*  add a security layer to restrict the login ability based on client certificates.
-*  route your HTTPS connections to a predefined list of backend servers.
+With just one public-facing IP address and SSL port 443, you can achieve the following:
 
-For SSH or Rsync we’ll use the TLS protocol and its SNI extension together with the SSH ProxyCommand feature. Or, said another way, we will wrap our connections with TLS, but we do so simply to leverage SNI so that the client can tell us which backend server they want to connect to.  
+* Route your HTTPS connections to a predefined list of backend servers, such as Jellyfin.
+* Direct your SSH and Rsync connections to a specific server.
+* Enhance security by restricting login access based on client certificates.
 
-pfSense package manager has a ready-built distribution of HAProxy.
+For SSH or Rsync connections, we employ the TLS protocol and its SNI extension in combination with the SSH ProxyCommand feature. In other words, we wrap our connections with TLS to leverage SNI, enabling the client to indicate the desired backend server for the connection.
+
+The pfSense package manager includes a pre-built distribution of HAProxy, making it readily available for installation.
 
 <h2>Prerequisites</h2>
 
@@ -76,13 +76,13 @@ pfSense package manager has a ready-built distribution of HAProxy.
 <hr>
 
 # 1. Create a Cloudflare Account
-I recommend you redirect your domain DNS Names Servers to Cloudflare.
+I suggest redirecting your domain's DNS Name Servers to Cloudflare for various benefits.
 
-Cloudflare DNS servers fast, they support a API Key for configuring your pfSense DNS records and provide a **free Dynamic DNS service**. A Cloudflare DNS name server is free for basic home users.
+Cloudflare offers fast DNS servers and supports an API Key that allows you to configure your pfSense DNS records. Additionally, they provide a free Dynamic DNS service, which can be particularly useful for basic home users. Cloudflare's DNS name server is free to use for these purposes.
 
-There are plenty of tutorials about how to move your DNS services from Google, GoDaddy, and other providers to Cloudflare on the internet.
+There are numerous tutorials available online that guide you through the process of transferring your DNS services from providers like Google and GoDaddy to Cloudflare.
 
-This tutorial will refer to Cloudflare DNS management from now on.
+From this point forward, this tutorial will specifically refer to Cloudflare DNS management.
 
 # 2. Configure your domains at Cloudflare
 First, you must decide on your subdomain names. It’s part of the address used to direct traffic to a particular service running on your site's servers. 
@@ -468,7 +468,7 @@ Navigate using the pfSense web interface to `System` > `Certificate Manager` > `
 
 The two files will later be copied to your Kodi-Rsync server folder `~/.ssh` and renamed.
 > Acmi+SSLH+-+Kodirsync.crt >> sslh.crt
-> Acmi+SSLH+-+Kodirsync.key >> sslh_kodirsync.key
+> Acmi+SSLH+-+Kodirsync.key >> sslh-kodirsync.key
 
 
 # 8. Configure Firewall Rules
@@ -788,7 +788,7 @@ https://jellyfin-site1.foo.bar
 Use an external device such as your mobile phone (use the Termix App over 4G/5G network) and try connecting to your SSLH backend server. In this example, we connect to our SSLH Kodi-Rsync backend server using a SSH terminal command.
 
 ```
-ssh -vvvv -i ~/.ssh/username_kodirsync_id_ed25519 -o ProxyCommand="openssl s_client -quiet -connect sslh-site1.foo.bar:443 -servername kodirsync.sslh-site1.foo.bar -cert ~/.ssh/sslh.crt -key ~/.ssh/sslh-kodirsync.key" username_kodirsync@kodirsync.localdomain -o StrictHostKeyChecking=no
+ssh -vvvv -i ~/.ssh/username_kodirsync_id_ed25519 -o ProxyCommand="openssl s_client -quiet -connect sslh-site1.foo.bar:443 -servername kodirsync.sslh-site1.foo.bar -cert ~/.ssh/sslh.crt -key ~/.ssh/sslh-kodirsync.key" username_kodirsync@kodirsync.local -o StrictHostKeyChecking=no
 ```
 
 Remember the above CLI command requires all certs and keys to be available in the clients `~/.ssh` folder.
