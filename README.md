@@ -21,6 +21,8 @@ The pfSense package manager includes a pre-built distribution of HAProxy, making
 
 <h2>Prerequisites</h2>
 
+Read about our <a href="https://github.com/ahuacate/common/tree/main/pve/src/local_about_our_build.md" target="_blank">system-wide requirements</a> before proceeding any further.
+
 - [ ] Proxmox hosts fully configured as per guide: [PVE Host Setup](https://github.com/ahuacate/pve-host) (Recommended)
 - [x] pfSense is fully configured as per guide: [pfSense Setup](https://github.com/ahuacate/pfsense-setup)
 - [x] PiHole DNS server
