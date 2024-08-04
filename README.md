@@ -1,21 +1,21 @@
 <h1>pfSense HAProxy</h1>
 
-This guide focuses on using the HAProxy add-on for pfSense.
+This guide covers the use of the HAProxy add-on for pfSense.
 
-HAProxy is a reverse proxy server that operates behind a firewall within a private network. It directs client requests to the appropriate backend server, providing an additional layer of abstraction and control for efficient network traffic flow between clients and servers.
+HAProxy is a reverse proxy server that operates behind a firewall within a private network. It directs client requests to the appropriate backend server, providing an extra layer of abstraction and control for efficient network traffic flow between clients and servers.
 
-To set up HAProxy easily, you can utilize the pfSense HAProxy add-on. By using HAProxy, you gain the ability to access your applications and internal servers using address URLs such as:
+To set up HAProxy, you can use the pfSense HAProxy add-on. With HAProxy, you can access your applications and internal servers through URLs like:
 
-> https://unifi-site1.foo.bar → unifi.local
-> https://jellyfin-site1.foo.bar → jellyfin.local
+- `https://unifi-site1.foo.bar` → `unifi.local`
+- `https://jellyfin-site1.foo.bar` → `jellyfin.local`
 
-With just one public-facing IP address and SSL port 443, you can achieve the following:
+By utilizing a single public-facing IP address and SSL port 443, you can:
 
-* Route your HTTPS connections to a predefined list of backend servers, such as Jellyfin.
-* Direct your SSH and Rsync connections to a specific server.
+* Route HTTPS connections to a predefined list of backend servers, such as Jellyfin.
+* Direct SSH and Rsync connections to specific servers.
 * Enhance security by restricting login access based on client certificates.
 
-For SSH or Rsync connections, we employ the TLS protocol and its SNI extension in combination with the SSH ProxyCommand feature. In other words, we wrap our connections with TLS to leverage SNI, enabling the client to indicate the desired backend server for the connection.
+For SSH or Rsync connections, we use the TLS protocol and its SNI extension combined with the SSH ProxyCommand feature. This wraps connections with TLS and leverages SNI, allowing the client to specify the desired backend server.
 
 The pfSense package manager includes a pre-built distribution of HAProxy, making it readily available for installation.
 
